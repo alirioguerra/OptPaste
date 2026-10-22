@@ -14,6 +14,10 @@ struct SettingsView: View {
 
         Form {
             Section {
+                AboutHeader()
+            }
+
+            Section {
                 LabeledContent("Abrir histórico") {
                     HStack(spacing: 8) {
                         if settings.shortcut != .default {
@@ -130,6 +134,56 @@ private struct StatusText: View {
                 .frame(width: 7, height: 7)
             Text(text)
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// App icon, name and version, with a manual update check.
+private struct AboutHeader: View {
+    @State private var updater = UpdateChecker()
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 56, height: 56)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("OptPaste")
+                    .font(.title3.weight(.semibold))
+                Text("Versão \(UpdateChecker.currentVersion) (\(UpdateChecker.currentBuild))")
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                if case let .available(version, url) = updater.state {
+                    Button("Baixar versão \(version)…") { NSWorkspace.shared.open(url) }
+                } else {
+                    Button("Procurar atualizações") {
+                        Task { await updater.check() }
+                    }
+                    .disabled(updater.state == .checking)
+                }
+                updateStatus
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private var updateStatus: some View {
+        switch updater.state {
+        case .idle:
+            EmptyView()
+        case .checking:
+            Text("Procurando…")
+        case .upToDate:
+            Text("Você está na versão mais recente.")
+        case .available:
+            Text("Nova versão disponível.")
+        case .failed:
+            Text("Não foi possível verificar.")
         }
     }
 }
