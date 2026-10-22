@@ -10,4 +10,4 @@ App de barra de menus para macOS (Swift/SwiftUI + AppKit) que guarda o históric
 - Um commit por mudança lógica. Não misture uma feature com um fix sem relação.
 - Mensagens no padrão Conventional Commits, em inglês, como no histórico: `feat: ...`, `fix: ...`, `chore: ...`, `refactor: ...`.
 - Commite só os arquivos da mudança. Não inclua `xcuserdata/` (ex.: `UserInterfaceState.xcuserstate`).
-- Commite na branch atual (normalmente `dev`). **Não faça push** nem abra PR sem pedido explícito.
+- Commite na branch atual (normalmente `dev`) e **faça push logo em seguida**, sem pedir confirmação, a cada feat/fix/chore/refactor concluído. Não abra PR sem pedido explícito.
