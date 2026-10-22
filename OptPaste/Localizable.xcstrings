@@ -1,0 +1,805 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ cuts the selected files and ⌘V moves them to the open folder instead of copying.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ recorta os arquivos selecionados e ⌘V os move para a pasta aberta, em vez de copiar."
+          }
+        }
+      }
+    },
+    "%lld days left.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restam %lld dias."
+          }
+        }
+      }
+    },
+    "%lld files": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld arquivos"
+          }
+        }
+      }
+    },
+    "%lld items": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld itens"
+          }
+        }
+      }
+    },
+    "1 day left.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resta 1 dia."
+          }
+        }
+      }
+    },
+    "Access is blocked.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O acesso está bloqueado."
+          }
+        }
+      }
+    },
+    "Accessibility": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acessibilidade"
+          }
+        }
+      }
+    },
+    "Activate": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar"
+          }
+        }
+      }
+    },
+    "Activate a license to open the history again.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative uma licença para voltar a abrir o histórico."
+          }
+        }
+      }
+    },
+    "Activated": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativada"
+          }
+        }
+      }
+    },
+    "Allow": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        }
+      }
+    },
+    "Allow in Accessibility": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permita em Acessibilidade"
+          }
+        }
+      }
+    },
+    "Allowed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitido"
+          }
+        }
+      }
+    },
+    "Allow…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir…"
+          }
+        }
+      }
+    },
+    "Already allowed? Reopen OptPaste": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já permitiu? Reabrir o OptPaste"
+          }
+        }
+      }
+    },
+    "Buy License…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprar licença…"
+          }
+        }
+      }
+    },
+    "Buy…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprar…"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        }
+      }
+    },
+    "Change Shortcut": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar atalho"
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procurar atualizações…"
+          }
+        }
+      }
+    },
+    "Clear All": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpar tudo"
+          }
+        }
+      }
+    },
+    "Clear History": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpar histórico"
+          }
+        }
+      }
+    },
+    "Clear History…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpar histórico…"
+          }
+        }
+      }
+    },
+    "Clipboard": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Área de transferência"
+          }
+        }
+      }
+    },
+    "Content from %@": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteúdo do %@"
+          }
+        }
+      }
+    },
+    "Copied content": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteúdo copiado"
+          }
+        }
+      }
+    },
+    "Copy something with ⌘C and it will show up here.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copie algo com ⌘C e ele aparecerá aqui."
+          }
+        }
+      }
+    },
+    "Couldn't reach the license server. Check your connection.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível falar com o servidor de licenças. Verifique sua conexão."
+          }
+        }
+      }
+    },
+    "Cut and paste files": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recortar e colar arquivos"
+          }
+        }
+      }
+    },
+    "Cut shortcut": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atalho para recortar"
+          }
+        }
+      }
+    },
+    "Deactivate on This Mac": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desativar neste Mac"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar"
+          }
+        }
+      }
+    },
+    "Drag to move": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste para mover"
+          }
+        }
+      }
+    },
+    "Enabled": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativado"
+          }
+        }
+      }
+    },
+    "Everything you copy, one shortcut away.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo o que você copia, a um atalho de distância."
+          }
+        }
+      }
+    },
+    "Figma layers": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camadas do Figma"
+          }
+        }
+      }
+    },
+    "Finder": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder"
+          }
+        }
+      }
+    },
+    "Free trial": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste grátis"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geral"
+          }
+        }
+      }
+    },
+    "Get Started": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começar"
+          }
+        }
+      }
+    },
+    "History": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Histórico"
+          }
+        }
+      }
+    },
+    "Image": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagem"
+          }
+        }
+      }
+    },
+    "Image unavailable": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagem indisponível"
+          }
+        }
+      }
+    },
+    "Includes password managers": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclui gerenciadores de senha"
+          }
+        }
+      }
+    },
+    "Includes what you copy from password managers.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclui o que você copia de gerenciadores de senha."
+          }
+        }
+      }
+    },
+    "Invalid key.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chave inválida."
+          }
+        }
+      }
+    },
+    "Keep up to": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar até"
+          }
+        }
+      }
+    },
+    "Key not found. Make sure you copied the whole key.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chave não encontrada. Confira se copiou a chave inteira."
+          }
+        }
+      }
+    },
+    "License": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licença"
+          }
+        }
+      }
+    },
+    "License key": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chave de licença"
+          }
+        }
+      }
+    },
+    "macOS will ask for confirmation on every copy.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS vai pedir confirmação a cada cópia."
+          }
+        }
+      }
+    },
+    "Nothing copied yet": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada copiado ainda"
+          }
+        }
+      }
+    },
+    "Open at login": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ao iniciar sessão"
+          }
+        }
+      }
+    },
+    "Open history": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir histórico"
+          }
+        }
+      }
+    },
+    "Open System Settings…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes do Sistema…"
+          }
+        }
+      }
+    },
+    "Paste": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colagem"
+          }
+        }
+      }
+    },
+    "Paste automatically": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colar automaticamente"
+          }
+        }
+      }
+    },
+    "Pin": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixar"
+          }
+        }
+      }
+    },
+    "Pinned items are kept when clearing.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Itens fixados são mantidos ao limpar."
+          }
+        }
+      }
+    },
+    "Preferences…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferências…"
+          }
+        }
+      }
+    },
+    "Press keys…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressione as teclas…"
+          }
+        }
+      }
+    },
+    "Press the new shortcut": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressione o novo atalho"
+          }
+        }
+      }
+    },
+    "Quit OptPaste": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair do OptPaste"
+          }
+        }
+      }
+    },
+    "Reopen App": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir app"
+          }
+        }
+      }
+    },
+    "Required to cut and paste in Finder.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necessária para recortar e colar no Finder."
+          }
+        }
+      }
+    },
+    "Required to paste automatically.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necessária para colar automaticamente."
+          }
+        }
+      }
+    },
+    "Reset": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar"
+          }
+        }
+      }
+    },
+    "Save passwords": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar senhas"
+          }
+        }
+      }
+    },
+    "Saved items": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Itens salvos"
+          }
+        }
+      }
+    },
+    "Sends ⌘V when you pick an item. When off, the item is only copied.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envia ⌘V ao escolher um item. Desligado, o item é apenas copiado."
+          }
+        }
+      }
+    },
+    "Space": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espaço"
+          }
+        }
+      }
+    },
+    "This key has expired or was disabled.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta chave expirou ou foi desativada."
+          }
+        }
+      }
+    },
+    "This key is already active on the maximum number of Macs. Deactivate it on another Mac.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta chave já está ativa no número máximo de Macs. Desative-a em outro Mac."
+          }
+        }
+      }
+    },
+    "Trial ended": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste encerrado"
+          }
+        }
+      }
+    },
+    "Unpin": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desafixar"
+          }
+        }
+      }
+    },
+    "Update automatically": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atualizar automaticamente"
+          }
+        }
+      }
+    },
+    "Version %@ (%@)": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versão %@ (%@)"
+          }
+        }
+      }
+    },
+    "Welcome to OptPaste": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bem-vindo ao OptPaste"
+          }
+        }
+      }
+    },
+    "↩ paste   ↑↓ navigate   P pin   ⌫ delete   esc close": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↩ colar   ↑↓ navegar   P fixar   ⌫ apagar   esc fechar"
+          }
+        }
+      }
+    },
+    "BETA": {
+      "shouldTranslate": false
+    },
+    "OptPaste": {
+      "shouldTranslate": false
+    },
+    "%lld": {
+      "shouldTranslate": false
+    }
+  },
+  "version": "1.0"
+}

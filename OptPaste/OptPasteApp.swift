@@ -69,7 +69,7 @@ final class AppController: NSObject, NSWindowDelegate {
 
     func openOnboarding() {
         if onboardingWindow == nil {
-            let window = makeWindow(title: "Bem-vindo ao OptPaste", rootView: OnboardingView(controller: self))
+            let window = makeWindow(title: String(localized: "Welcome to OptPaste"), rootView: OnboardingView(controller: self))
             window.styleMask.insert(.fullSizeContentView)
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
@@ -122,14 +122,14 @@ struct MenuBarContent: View {
     let controller: AppController
 
     var body: some View {
-        Button("Preferências…") { controller.openSettings() }
+        Button("Preferences…") { controller.openSettings() }
             .keyboardShortcut(",")
-        Button("Limpar histórico") { controller.store.clear() }
+        Button("Clear History") { controller.store.clear() }
         if case .licensed = controller.license.status {} else {
-            Button("Comprar licença…") { NSWorkspace.shared.open(License.checkoutURL) }
+            Button("Buy License…") { NSWorkspace.shared.open(License.checkoutURL) }
         }
         Divider()
-        Button("Sair do OptPaste") { NSApp.terminate(nil) }
+        Button("Quit OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }
 }

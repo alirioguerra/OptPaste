@@ -25,3 +25,11 @@ App de barra de menus para macOS (Swift/SwiftUI + AppKit) que guarda o históric
   `Info.plist`) e só instala o que estiver assinado com a chave EdDSA cuja parte pública é o `SUPublicEDKey`. A
   chave privada fica no Keychain de login; sem ela não dá para publicar atualizações.
 - `chore` e `refactor` sozinhos não geram release.
+
+## Textos
+
+- O app está em inglês e português (segue o idioma do sistema; outros idiomas caem no inglês).
+- Escreva todo texto visível em inglês no código (`Text("…")`, `Button("…")`, `String(localized: "…")` fora de
+  views) e adicione a tradução em `OptPaste/Localizable.xcstrings` (`pt-BR`). Texto com variável vira chave com
+  `%@`/`%lld`, como `"Version %@ (%@)"`.
+- Em ternários use `Text("a")`/`Text("b")` ou `String(localized:)` em cada lado; uma `String` comum não é traduzida.

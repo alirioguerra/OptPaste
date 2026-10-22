@@ -23,13 +23,13 @@ final class License {
         var errorDescription: String? {
             switch self {
             case .rejected(let message?) where message.contains("not found"):
-                "Chave não encontrada. Confira se copiou a chave inteira."
+                String(localized: "Key not found. Make sure you copied the whole key.")
             case .rejected(let message?) where message.contains("activation limit"):
-                "Esta chave já está ativa no número máximo de Macs. Desative-a em outro Mac."
+                String(localized: "This key is already active on the maximum number of Macs. Deactivate it on another Mac.")
             case .rejected(let message?) where message.contains("expired") || message.contains("disabled"):
-                "Esta chave expirou ou foi desativada."
-            case .rejected(let message): message ?? "Chave inválida."
-            case .unreachable: "Não foi possível falar com o servidor de licenças. Verifique sua conexão."
+                String(localized: "This key has expired or was disabled.")
+            case .rejected(let message): message ?? String(localized: "Invalid key.")
+            case .unreachable: String(localized: "Couldn't reach the license server. Check your connection.")
             }
         }
     }

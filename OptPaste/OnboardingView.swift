@@ -13,16 +13,16 @@ struct OnboardingView: View {
 
         VStack(spacing: 0) {
             AppIcon()
-            Text("Bem-vindo ao OptPaste")
+            Text("Welcome to OptPaste")
                 .font(.title.bold())
                 .padding(.top, 16)
-            Text("Tudo o que você copia, a um atalho de distância.")
+            Text("Everything you copy, one shortcut away.")
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
 
             Group {
                 if capture.isRecording {
-                    Text("Pressione o novo atalho")
+                    Text("Press the new shortcut")
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, minHeight: 58)
                         .background(
@@ -37,7 +37,7 @@ struct OnboardingView: View {
             .frame(height: 64)
             .padding(.top, 32)
 
-            Button(capture.isRecording ? "Cancelar" : "Alterar atalho") {
+            Button(capture.isRecording ? String(localized: "Cancel") : String(localized: "Change Shortcut")) {
                 if capture.isRecording {
                     capture.cancel()
                 } else {
@@ -48,14 +48,14 @@ struct OnboardingView: View {
             .padding(.top, 10)
 
             VStack(spacing: 8) {
-                OptionCard(icon: "doc.on.clipboard", title: "Colar automaticamente",
-                           subtitle: canPost ? "Ativado" : "Permita em Acessibilidade") {
+                OptionCard(icon: "doc.on.clipboard", title: String(localized: "Paste automatically"),
+                           subtitle: canPost ? String(localized: "Enabled") : String(localized: "Allow in Accessibility")) {
                     if canPost {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.title2)
                             .foregroundStyle(.green)
                     } else {
-                        Button("Permitir") {
+                        Button("Allow") {
                             didRequestAccess = true
                             if !Paster.requestAccess() {
                                 Paster.openAccessibilitySettings()
@@ -64,15 +64,15 @@ struct OnboardingView: View {
                     }
                 } footer: {
                     if didRequestAccess && !canPost {
-                        Button("Já permitiu? Reabrir o OptPaste") { Paster.relaunch() }
+                        Button("Already allowed? Reopen OptPaste") { Paster.relaunch() }
                             .buttonStyle(.link)
                             .font(.caption)
                     }
                 }
 
-                OptionCard(icon: "key", title: "Guardar senhas",
-                           subtitle: "Inclui gerenciadores de senha") {
-                    Toggle("Guardar senhas", isOn: $settings.savePasswords)
+                OptionCard(icon: "key", title: String(localized: "Save passwords"),
+                           subtitle: String(localized: "Includes password managers")) {
+                    Toggle("Save passwords", isOn: $settings.savePasswords)
                         .labelsHidden()
                         .toggleStyle(.switch)
                 }
@@ -83,7 +83,7 @@ struct OnboardingView: View {
                 capture.cancel()
                 controller.finishOnboarding()
             } label: {
-                Text("Começar").frame(maxWidth: .infinity)
+                Text("Get Started").frame(maxWidth: .infinity)
             }
             .controlSize(.large)
             .buttonStyle(.borderedProminent)

@@ -38,12 +38,12 @@ struct ClipboardItem: Identifiable, Codable, Hashable {
                 .components(separatedBy: .newlines).first ?? ""
             return line.count > 40 ? String(line.prefix(40)) + "…" : line
         case .image:
-            return "Imagem"
+            return String(localized: "Image")
         case .files:
             let names = (fileURLs ?? []).map(\.lastPathComponent)
-            return names.count == 1 ? names[0] : "\(names.count) arquivos"
+            return names.count == 1 ? names[0] : String(localized: "\(names.count) files")
         case .other:
-            return title ?? "Conteúdo copiado"
+            return title ?? String(localized: "Copied content")
         }
     }
 }

@@ -9,11 +9,11 @@ enum PreferencesTab: CaseIterable {
 
     var title: String {
         switch self {
-        case .general: "Geral"
-        case .history: "Histórico"
-        case .paste: "Colagem"
-        case .finder: "Finder"
-        case .license: "Licença"
+        case .general: String(localized: "General")
+        case .history: String(localized: "History")
+        case .paste: String(localized: "Paste")
+        case .finder: String(localized: "Finder")
+        case .license: String(localized: "License")
         }
     }
 
@@ -95,10 +95,10 @@ private struct GeneralPane: View {
             }
 
             Section {
-                LabeledContent("Abrir histórico") {
+                LabeledContent("Open history") {
                     HStack(spacing: 8) {
                         if settings.shortcut != .default {
-                            Button("Restaurar") {
+                            Button("Reset") {
                                 settings.shortcut = .default
                                 HotKeyManager.shared.register(.default)
                             }
@@ -120,19 +120,19 @@ private struct HistoryPane: View {
     var body: some View {
         PreferencesPane {
             Section {
-                Picker("Guardar até", selection: $settings.historyLimit) {
-                    ForEach(AppSettings.historyLimitOptions, id: \.self) { Text("\($0) itens") }
+                Picker("Keep up to", selection: $settings.historyLimit) {
+                    ForEach(AppSettings.historyLimitOptions, id: \.self) { Text("\($0) items") }
                 }
                 .onChange(of: settings.historyLimit) { store.trim() }
                 Toggle(isOn: $settings.savePasswords) {
-                    Text("Guardar senhas")
-                    Text("Inclui o que você copia de gerenciadores de senha.")
+                    Text("Save passwords")
+                    Text("Includes what you copy from password managers.")
                 }
-                LabeledContent("Itens salvos") {
-                    Button("Limpar histórico…") { store.clear() }
+                LabeledContent("Saved items") {
+                    Button("Clear History…") { store.clear() }
                 }
             } footer: {
-                Text("Itens fixados são mantidos ao limpar.")
+                Text("Pinned items are kept when clearing.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -150,27 +150,27 @@ private struct PastePane: View {
         PreferencesPane {
             Section {
                 Toggle(isOn: $settings.autoPaste) {
-                    Text("Colar automaticamente")
-                    Text("Envia ⌘V ao escolher um item. Desligado, o item é apenas copiado.")
+                    Text("Paste automatically")
+                    Text("Sends ⌘V when you pick an item. When off, the item is only copied.")
                 }
                 .onChange(of: settings.autoPaste) { _, enabled in
                     if enabled && !Paster.canPostEvents { requestPostAccess() }
                 }
                 if settings.autoPaste {
-                    AccessibilityRow(canPost: canPost, reason: "Necessária para colar automaticamente.")
+                    AccessibilityRow(canPost: canPost, reason: "Required to paste automatically.")
                 }
                 LabeledContent {
                     if pasteAccess == .allowed {
-                        StatusText("Permitido")
+                        StatusText("Allowed")
                     } else {
-                        Button("Abrir Ajustes do Sistema…") { Paster.openPasteSettings() }
+                        Button("Open System Settings…") { Paster.openPasteSettings() }
                     }
                 } label: {
-                    Text("Área de transferência")
+                    Text("Clipboard")
                     if pasteAccess != .allowed {
-                        Text(pasteAccess == .ask
-                             ? "O macOS vai pedir confirmação a cada cópia."
-                             : "O acesso está bloqueado.")
+                        pasteAccess == .ask
+                            ? Text("macOS will ask for confirmation on every copy.")
+                            : Text("Access is blocked.")
                     }
                 }
             }
@@ -192,18 +192,18 @@ private struct FinderPane: View {
         PreferencesPane {
             Section {
                 Toggle(isOn: $settings.finderCut) {
-                    Text("Recortar e colar arquivos")
-                    Text("\(settings.cutShortcut.displayString) recorta os arquivos selecionados e ⌘V os move para a pasta aberta, em vez de copiar.")
+                    Text("Cut and paste files")
+                    Text("\(settings.cutShortcut.displayString) cuts the selected files and ⌘V moves them to the open folder instead of copying.")
                 }
                 .onChange(of: settings.finderCut) { _, enabled in
                     if enabled && !Paster.canPostEvents { requestPostAccess() }
                     finderCut.update()
                 }
                 if settings.finderCut {
-                    LabeledContent("Atalho para recortar") {
+                    LabeledContent("Cut shortcut") {
                         HStack(spacing: 8) {
                             if settings.cutShortcut != .defaultCut {
-                                Button("Restaurar") { settings.cutShortcut = .defaultCut }
+                                Button("Reset") { settings.cutShortcut = .defaultCut }
                                     .buttonStyle(.borderless)
                             }
                             // Only active while Finder is in front, so there is no global hotkey to swap.
@@ -211,7 +211,7 @@ private struct FinderPane: View {
                         }
                     }
                     if !canPost {
-                        AccessibilityRow(canPost: canPost, reason: "Necessária para recortar e colar no Finder.")
+                        AccessibilityRow(canPost: canPost, reason: "Required to cut and paste in Finder.")
                     }
                 }
             }
@@ -228,16 +228,16 @@ private struct AccessibilityRow: View {
     var body: some View {
         LabeledContent {
             if canPost {
-                StatusText("Permitido")
+                StatusText("Allowed")
             } else {
                 HStack(spacing: 8) {
-                    Button("Reabrir app") { Paster.relaunch() }
+                    Button("Reopen App") { Paster.relaunch() }
                         .buttonStyle(.borderless)
-                    Button("Permitir…", action: requestPostAccess)
+                    Button("Allow…", action: requestPostAccess)
                 }
             }
         } label: {
-            Text("Acessibilidade")
+            Text("Accessibility")
             Text(reason)
         }
     }
@@ -280,7 +280,7 @@ private struct LicenseSection: View {
         Section {
             if case let .licensed(email) = license.status {
                 LabeledContent {
-                    Button("Desativar neste Mac") {
+                    Button("Deactivate on This Mac") {
                         Task {
                             isWorking = true
                             await license.deactivate()
@@ -289,27 +289,27 @@ private struct LicenseSection: View {
                     }
                     .disabled(isWorking)
                 } label: {
-                    Text("Ativada")
+                    Text("Activated")
                     if let email { Text(email) }
                 }
             } else {
                 LabeledContent {
-                    Button("Comprar…") { NSWorkspace.shared.open(License.checkoutURL) }
+                    Button("Buy…") { NSWorkspace.shared.open(License.checkoutURL) }
                 } label: {
                     if case let .trial(daysLeft) = license.status {
-                        Text("Teste grátis")
-                        Text(daysLeft == 1 ? "Resta 1 dia." : "Restam \(daysLeft) dias.")
+                        Text("Free trial")
+                        daysLeft == 1 ? Text("1 day left.") : Text("\(daysLeft) days left.")
                     } else {
-                        Text("Teste encerrado")
-                        Text("Ative uma licença para voltar a abrir o histórico.")
+                        Text("Trial ended")
+                        Text("Activate a license to open the history again.")
                     }
                 }
                 HStack(spacing: 8) {
-                    TextField("Chave de licença", text: $key)
+                    TextField("License key", text: $key)
                         .labelsHidden()
                         .textFieldStyle(.roundedBorder)
                         .onSubmit(activate)
-                    Button("Ativar", action: activate)
+                    Button("Activate", action: activate)
                         .disabled(key.trimmingCharacters(in: .whitespaces).isEmpty || isWorking)
                 }
             }
@@ -360,14 +360,14 @@ private struct AboutHeader: View {
                             .background(.orange, in: Capsule())
                     }
                 }
-                Text("Versão \(Updater.currentVersion) (\(Updater.currentBuild))")
+                Text("Version \(Updater.currentVersion) (\(Updater.currentBuild))")
                     .foregroundStyle(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 6) {
-                Button("Procurar atualizações…") { updater.checkForUpdates() }
+                Button("Check for Updates…") { updater.checkForUpdates() }
                     .disabled(!updater.canCheckForUpdates)
-                Toggle("Atualizar automaticamente", isOn: $updater.automaticallyChecksForUpdates)
+                Toggle("Update automatically", isOn: $updater.automaticallyChecksForUpdates)
                     .toggleStyle(.checkbox)
                     .font(.caption)
             }
@@ -383,7 +383,7 @@ struct LaunchAtLoginToggle: View {
     @State private var isOn = SMAppService.mainApp.status == .enabled
 
     var body: some View {
-        Toggle("Abrir ao iniciar sessão", isOn: $isOn)
+        Toggle("Open at login", isOn: $isOn)
             .onChange(of: isOn) { _, enabled in
                 guard enabled != (SMAppService.mainApp.status == .enabled) else { return }
                 do {
@@ -411,7 +411,7 @@ struct ShortcutRecorder: View {
         Button {
             capture.isRecording ? capture.cancel() : capture.start(current: shortcut, hotKey: hotKey) { shortcut = $0 }
         } label: {
-            Text(capture.isRecording ? "Pressione as teclas…" : placeholder ?? shortcut.displayString)
+            (capture.isRecording ? Text("Press keys…") : Text(placeholder ?? shortcut.displayString))
                 .frame(minWidth: 110)
         }
         .onDisappear { capture.cancel() }
