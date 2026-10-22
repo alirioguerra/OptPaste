@@ -2,12 +2,12 @@ import Foundation
 import OSLog
 import Security
 
-/// Free trial followed by a Lemon Squeezy license key.
+/// Free trial followed by a license key bought through Paddle.
 ///
-/// Keys are activated against the Lemon Squeezy License API, which needs no secret, so the app
-/// talks to it directly. Trial start and the activated key live in the Keychain, which outlives
-/// reinstalls. Once activated, the app only drops the license when Lemon Squeezy says it is no
-/// longer valid; being offline never locks anyone out.
+/// Keys are issued and activated by the site's license API (`optpaste-site/api`). Trial start and
+/// the activated key live in the Keychain, which outlives reinstalls. Once activated, the app only
+/// drops the license when the API says it is no longer valid (e.g. refunded); being offline never
+/// locks anyone out.
 @Observable
 final class License {
     enum Status: Equatable {
@@ -18,7 +18,6 @@ final class License {
 
     enum ActivationError: LocalizedError {
         case rejected(String?)
-        case wrongProduct
         case unreachable
 
         var errorDescription: String? {
@@ -30,19 +29,16 @@ final class License {
             case .rejected(let message?) where message.contains("expired") || message.contains("disabled"):
                 "Esta chave expirou ou foi desativada."
             case .rejected(let message): message ?? "Chave inválida."
-            case .wrongProduct: "Esta chave não é do OptPaste."
             case .unreachable: "Não foi possível falar com o servidor de licenças. Verifique sua conexão."
             }
         }
     }
 
     static let trialDays = 14
-    static let checkoutURL = URL(string: "https://optpaste.lemonsqueezy.com/buy")!
-    /// Lemon Squeezy product id; keys from other products are refused. Nil skips the check.
-    private static let productID: Int? = nil
+    static let checkoutURL = URL(string: "https://optpaste-site.vercel.app/#comprar")!
 
     private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OptPaste", category: "license")
-    private static let api = URL(string: "https://api.lemonsqueezy.com/v1/licenses/")!
+    private static let api = URL(string: "https://optpaste-site.vercel.app/api/license/")!
 
     private var activation: Activation?
     private let trialStart: Date
@@ -93,10 +89,6 @@ final class License {
         guard response.activated == true, let instanceID = response.instance?.id else {
             throw ActivationError.rejected(response.error)
         }
-        if let productID = Self.productID, response.meta?.productID != productID {
-            _ = try? await call("deactivate", ["license_key": key, "instance_id": instanceID])
-            throw ActivationError.wrongProduct
-        }
         let activation = Activation(key: key, instanceID: instanceID, email: response.meta?.customerEmail)
         Keychain.write(activation, account: Keychain.activationAccount)
         self.activation = activation
@@ -114,7 +106,7 @@ final class License {
         activation = nil
     }
 
-    // MARK: - Lemon Squeezy
+    // MARK: - License API
 
     private func call(_ endpoint: String, _ fields: [String: String]) async throws -> Response {
         var components = URLComponents()
@@ -136,11 +128,9 @@ final class License {
         }
 
         struct Meta: Decodable {
-            let productID: Int?
             let customerEmail: String?
 
             enum CodingKeys: String, CodingKey {
-                case productID = "product_id"
                 case customerEmail = "customer_email"
             }
         }
