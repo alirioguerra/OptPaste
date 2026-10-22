@@ -26,12 +26,14 @@ final class AppController: NSObject, NSWindowDelegate {
     let license = License()
     let updater = Updater()
     let store: ClipboardStore
+    let finderCut: FinderCut
     private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
 
     private override init() {
         store = ClipboardStore(settings: settings)
+        finderCut = FinderCut(settings: settings)
         super.init()
     }
 
@@ -42,6 +44,7 @@ final class AppController: NSObject, NSWindowDelegate {
             license.isUsable ? panel.toggle() : openSettings()
         }
         HotKeyManager.shared.register(settings.shortcut)
+        finderCut.start()
         if !settings.didCompleteOnboarding {
             openOnboarding()
         }

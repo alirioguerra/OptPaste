@@ -2,7 +2,7 @@ import AppKit
 import Carbon.HIToolbox
 import OSLog
 
-/// Sends ⌘V to the frontmost app.
+/// Sends ⌘V (or another key combination) to the frontmost app.
 ///
 /// Only the narrow "post events" permission is needed (listed under Accessibility in
 /// System Settings), not full Accessibility control of other apps.
@@ -59,30 +59,33 @@ enum Paster {
             log.error("O app de destino não voltou ao primeiro plano; enviando ⌘V mesmo assim")
         }
         // Give the target a moment to restore its key window and text focus.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { postCommandV() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { post(kVK_ANSI_V, modifiers: .maskCommand) }
     }
 
-    private static func postCommandV() {
+    /// Sends a key with the given modifiers to the frontmost app, e.g. ⌘V or ⌥⌘V.
+    static func post(_ key: Int, modifiers: CGEventFlags) {
         let source = CGEventSource(stateID: .combinedSessionState)
         // Keep the user's physical keys (e.g. a still-held ⌥ from the shortcut) out of the event.
         source?.setLocalEventsFilterDuringSuppressionState(
             [.permitLocalMouseEvents, .permitSystemDefinedEvents],
             state: .eventSuppressionStateSuppressionInterval
         )
-        let keyCode = CGKeyCode(kVK_ANSI_V)
+        let keyCode = CGKeyCode(key)
         guard let down = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) else {
             log.error("Não foi possível criar os eventos de teclado")
             return
         }
-        // 0x08 is the device-dependent "left ⌘" bit; some apps ignore ⌘ without it.
-        let command = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue | 0x08)
-        down.flags = command
-        up.flags = command
+        // Device-dependent "left key" bits (⌘ 0x08, ⌥ 0x20); some apps ignore modifiers without them.
+        var flags = modifiers
+        if modifiers.contains(.maskCommand) { flags.insert(CGEventFlags(rawValue: 0x08)) }
+        if modifiers.contains(.maskAlternate) { flags.insert(CGEventFlags(rawValue: 0x20)) }
+        down.flags = flags
+        up.flags = flags
         // Posted at session level, where synthetic events are expected.
         down.post(tap: .cgSessionEventTap)
         up.post(tap: .cgSessionEventTap)
-        log.info("⌘V enviado")
+        log.info("Tecla \(key, privacy: .public) enviada com modificadores \(modifiers.rawValue, privacy: .public)")
     }
 }
 

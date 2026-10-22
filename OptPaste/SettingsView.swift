@@ -99,6 +99,43 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle(isOn: $settings.finderCut) {
+                    Text("Recortar e colar arquivos")
+                    Text("\(settings.cutShortcut.displayString) recorta os arquivos selecionados e ⌘V os move para a pasta aberta, em vez de copiar.")
+                }
+                .onChange(of: settings.finderCut) { _, enabled in
+                    if enabled && !Paster.canPostEvents { requestPostAccess() }
+                    controller.finderCut.update()
+                }
+                if settings.finderCut {
+                    LabeledContent("Atalho para recortar") {
+                        HStack(spacing: 8) {
+                            if settings.cutShortcut != .defaultCut {
+                                Button("Restaurar") { settings.cutShortcut = .defaultCut }
+                                    .buttonStyle(.borderless)
+                            }
+                            // Only active while Finder is in front, so there is no global hotkey to swap.
+                            ShortcutRecorder(shortcut: $settings.cutShortcut, hotKey: nil)
+                        }
+                    }
+                    if !canPost {
+                        LabeledContent {
+                            HStack(spacing: 8) {
+                                Button("Reabrir app") { Paster.relaunch() }
+                                    .buttonStyle(.borderless)
+                                Button("Permitir…", action: requestPostAccess)
+                            }
+                        } label: {
+                            Text("Acessibilidade")
+                            Text("Necessária para recortar e colar no Finder.")
+                        }
+                    }
+                }
+            } header: {
+                Text("Finder")
+            }
+
+            Section {
                 LaunchAtLoginToggle()
             } header: {
                 Text("Geral")
@@ -275,13 +312,15 @@ struct LaunchAtLoginToggle: View {
 
 struct ShortcutRecorder: View {
     @Binding var shortcut: Shortcut
+    /// The global hotkey to release while recording and re-register afterwards; nil for none.
+    var hotKey: HotKeyManager? = .shared
     /// Shown instead of the current shortcut, e.g. when it is already displayed elsewhere.
     var placeholder: String?
     @State private var capture = ShortcutCapture()
 
     var body: some View {
         Button {
-            capture.isRecording ? capture.cancel() : capture.start(current: shortcut) { shortcut = $0 }
+            capture.isRecording ? capture.cancel() : capture.start(current: shortcut, hotKey: hotKey) { shortcut = $0 }
         } label: {
             Text(capture.isRecording ? "Pressione as teclas…" : placeholder ?? shortcut.displayString)
                 .frame(minWidth: 110)
@@ -296,13 +335,15 @@ final class ShortcutCapture {
     private(set) var isRecording = false
     @ObservationIgnored private var monitor: Any?
     @ObservationIgnored private var current: Shortcut?
+    @ObservationIgnored private var hotKey: HotKeyManager?
 
-    func start(current: Shortcut, onCapture: @escaping (Shortcut) -> Void) {
+    func start(current: Shortcut, hotKey: HotKeyManager? = .shared, onCapture: @escaping (Shortcut) -> Void) {
         cancel()
         self.current = current
+        self.hotKey = hotKey
         isRecording = true
         // Release the current hotkey so pressing it again can be recorded.
-        HotKeyManager.shared.unregister()
+        hotKey?.unregister()
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
             if Int(event.keyCode) == kVK_Escape {
@@ -329,7 +370,7 @@ final class ShortcutCapture {
         monitor = nil
         guard isRecording, let current else { return }
         isRecording = false
-        if !HotKeyManager.shared.register(current) {
+        if let hotKey, !hotKey.register(current) {
             NSSound.beep()
         }
     }

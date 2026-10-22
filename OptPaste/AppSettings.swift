@@ -9,6 +9,8 @@ struct Shortcut: Codable, Equatable {
     var keyLabel: String
 
     static let `default` = Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(optionKey), keyLabel: "V")
+    static let defaultCut = Shortcut(keyCode: UInt32(kVK_ANSI_X), carbonModifiers: UInt32(cmdKey), keyLabel: "X")
+    static let commandV = Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(cmdKey), keyLabel: "V")
 
     init(keyCode: UInt32, carbonModifiers: UInt32, keyLabel: String) {
         self.keyCode = keyCode
@@ -62,6 +64,8 @@ final class AppSettings {
         static let autoPaste = "autoPaste"
         static let savePasswords = "savePasswords"
         static let didCompleteOnboarding = "didCompleteOnboarding"
+        static let finderCut = "finderCut"
+        static let cutShortcut = "cutShortcut"
     }
 
     static let historyLimitOptions = [10, 25, 50, 100, 200]
@@ -92,6 +96,19 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(didCompleteOnboarding, forKey: Key.didCompleteOnboarding) }
     }
 
+    /// In Finder, the cut shortcut marks the selected files as cut and the next ⌘V moves them.
+    var finderCut: Bool {
+        didSet { UserDefaults.standard.set(finderCut, forKey: Key.finderCut) }
+    }
+
+    var cutShortcut: Shortcut {
+        didSet {
+            if let data = try? JSONEncoder().encode(cutShortcut) {
+                UserDefaults.standard.set(data, forKey: Key.cutShortcut)
+            }
+        }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         shortcut = defaults.data(forKey: Key.shortcut)
@@ -101,5 +118,8 @@ final class AppSettings {
         autoPaste = defaults.object(forKey: Key.autoPaste) as? Bool ?? true
         savePasswords = defaults.object(forKey: Key.savePasswords) as? Bool ?? true
         didCompleteOnboarding = defaults.bool(forKey: Key.didCompleteOnboarding)
+        finderCut = defaults.object(forKey: Key.finderCut) as? Bool ?? true
+        cutShortcut = defaults.data(forKey: Key.cutShortcut)
+            .flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .defaultCut
     }
 }
