@@ -103,25 +103,9 @@ struct MenuBarContent: View {
     let controller: AppController
 
     var body: some View {
-        Button("Mostrar histórico (\(controller.settings.shortcut.displayString))") {
-            // Let the menu finish closing before the panel takes key focus.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { controller.panel.show() }
-        }
-
-        let recent = controller.store.displayItems.prefix(5)
-        if !recent.isEmpty {
-            Divider()
-            Text("Recentes")
-            ForEach(recent) { item in
-                Button(item.menuTitle) { controller.store.copyToPasteboard(item) }
-            }
-        }
-
-        Divider()
-        Button("Limpar histórico") { controller.store.clear() }
         Button("Ajustes…") { controller.openSettings() }
             .keyboardShortcut(",")
-        Button("Boas-vindas e permissões…") { controller.openOnboarding() }
+        Button("Limpar histórico") { controller.store.clear() }
         Divider()
         Button("Sair do OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")

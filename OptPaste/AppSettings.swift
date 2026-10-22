@@ -60,6 +60,7 @@ final class AppSettings {
         static let shortcut = "shortcut"
         static let historyLimit = "historyLimit"
         static let autoPaste = "autoPaste"
+        static let savePasswords = "savePasswords"
         static let didCompleteOnboarding = "didCompleteOnboarding"
     }
 
@@ -82,6 +83,11 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(autoPaste, forKey: Key.autoPaste) }
     }
 
+    /// Also keep copies that password managers mark as concealed.
+    var savePasswords: Bool {
+        didSet { UserDefaults.standard.set(savePasswords, forKey: Key.savePasswords) }
+    }
+
     var didCompleteOnboarding: Bool {
         didSet { UserDefaults.standard.set(didCompleteOnboarding, forKey: Key.didCompleteOnboarding) }
     }
@@ -93,6 +99,7 @@ final class AppSettings {
         let limit = defaults.integer(forKey: Key.historyLimit)
         historyLimit = limit > 0 ? limit : 50
         autoPaste = defaults.object(forKey: Key.autoPaste) as? Bool ?? true
+        savePasswords = defaults.object(forKey: Key.savePasswords) as? Bool ?? true
         didCompleteOnboarding = defaults.bool(forKey: Key.didCompleteOnboarding)
     }
 }

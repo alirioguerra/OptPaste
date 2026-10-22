@@ -26,6 +26,7 @@ struct SettingsView: View {
                     ForEach(AppSettings.historyLimitOptions, id: \.self) { Text("\($0) itens") }
                 }
                 .onChange(of: settings.historyLimit) { controller.store.trim() }
+                Toggle("Guardar senhas", isOn: $settings.savePasswords)
                 Button("Limpar histórico", role: .destructive) { controller.store.clear() }
             }
 

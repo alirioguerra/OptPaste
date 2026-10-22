@@ -9,7 +9,7 @@ struct OnboardingView: View {
     @State private var didRequestAccess = false
 
     var body: some View {
-        let settings = controller.settings
+        @Bindable var settings = controller.settings
 
         VStack(spacing: 0) {
             AppIcon()
@@ -47,8 +47,31 @@ struct OnboardingView: View {
             .buttonStyle(.link)
             .padding(.top, 10)
 
-            permissionCard
-                .padding(.top, 32)
+            VStack(spacing: 8) {
+                permissionCard
+                Toggle(isOn: $settings.savePasswords) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "key")
+                            .font(.title2)
+                            .foregroundStyle(Color.accentColor)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Guardar senhas")
+                                .fontWeight(.semibold)
+                            Text("Inclui o que você copia de gerenciadores de senha")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .toggleStyle(.switch)
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.primary.opacity(0.05))
+                )
+            }
+            .padding(.top, 32)
 
             Spacer(minLength: 24)
 
@@ -63,7 +86,7 @@ struct OnboardingView: View {
             .keyboardShortcut(.defaultAction)
         }
         .padding(32)
-        .frame(width: 420, height: 540)
+        .frame(width: 420, height: 610)
         .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
         .onDisappear { capture.cancel() }
     }
