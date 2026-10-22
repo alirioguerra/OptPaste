@@ -19,6 +19,17 @@ struct ClipboardItem: Identifiable, Codable, Hashable {
     var date = Date()
     var isPinned = false
     var sourceBundleID: String?
+    /// Copied from a password manager (marked concealed). Optional so older history still decodes.
+    var isConcealed: Bool?
+
+    var isPassword: Bool { isConcealed == true }
+
+    /// Shows only the first characters. The bullet count is fixed so the length isn't revealed.
+    var maskedText: String {
+        let password = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let visible = password.count >= 8 ? 3 : 1
+        return String(password.prefix(visible)) + String(repeating: "•", count: 8)
+    }
 
     var menuTitle: String {
         switch kind {
