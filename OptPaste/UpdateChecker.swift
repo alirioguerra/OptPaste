@@ -1,10 +1,10 @@
 import AppKit
 import OSLog
 
-/// Compares the running version with the newest GitHub release of the project.
+/// Compares the running version with the newest one announced by the site.
 ///
-/// Releases must be tagged with a semantic version, optionally prefixed with "v"
-/// (e.g. `v1.0.0-beta.2`, `v1.0.0`). Pre-releases are included while the app is a pre-release.
+/// The site serves `latest.json` (`{"version": "1.0.0-beta.2", "prerelease": true, "url": "…"}`)
+/// with a semantic version. Pre-releases are offered only while the app is a pre-release.
 @MainActor
 @Observable
 final class UpdateChecker {
@@ -17,7 +17,7 @@ final class UpdateChecker {
     }
 
     private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OptPaste", category: "update")
-    private static let releasesURL = URL(string: "https://api.github.com/repos/alirioguerra/OptPaste/releases?per_page=20")!
+    private static let latestURL = URL(string: "https://optpaste-site.vercel.app/latest.json")!
 
     /// `CFBundleShortVersionString` must stay numeric, so the pre-release label lives here.
     /// Set to nil for a stable release.
@@ -40,19 +40,16 @@ final class UpdateChecker {
         guard state != .checking else { return }
         state = .checking
         do {
-            var request = URLRequest(url: Self.releasesURL)
-            request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+            var request = URLRequest(url: Self.latestURL)
+            request.cachePolicy = .reloadIgnoringLocalCacheData
             let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw URLError(.badServerResponse)
             }
-            let current = SemanticVersion(Self.currentVersion)
-            let newest = try JSONDecoder().decode([Release].self, from: data)
-                .filter { !$0.draft && (Self.isPrerelease || !$0.prerelease) }
-                .map { (version: SemanticVersion($0.tagName), release: $0) }
-                .max { $0.version < $1.version }
-            if let newest, current < newest.version {
-                state = .available(version: newest.version.description, url: newest.release.htmlURL)
+            let latest = try JSONDecoder().decode(Release.self, from: data)
+            let newest = SemanticVersion(latest.version)
+            if (Self.isPrerelease || !latest.prerelease), SemanticVersion(Self.currentVersion) < newest {
+                state = .available(version: newest.description, url: latest.url)
             } else {
                 state = .upToDate
             }
@@ -63,17 +60,9 @@ final class UpdateChecker {
     }
 
     private struct Release: Decodable {
-        let tagName: String
-        let htmlURL: URL
-        let draft: Bool
+        let version: String
         let prerelease: Bool
-
-        enum CodingKeys: String, CodingKey {
-            case tagName = "tag_name"
-            case htmlURL = "html_url"
-            case draft
-            case prerelease
-        }
+        let url: URL
     }
 }
 
