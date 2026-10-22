@@ -14,7 +14,7 @@ final class PanelState {
 final class HistoryPanel: NSPanel {
     init(size: NSSize) {
         super.init(contentRect: NSRect(origin: .zero, size: size),
-                   styleMask: [.nonactivatingPanel, .borderless, .fullSizeContentView],
+                   styleMask: [.nonactivatingPanel, .borderless],
                    backing: .buffered, defer: false)
         isFloatingPanel = true
         level = .popUpMenu
@@ -32,6 +32,7 @@ final class HistoryPanel: NSPanel {
 
 final class HistoryPanelController: NSObject, NSWindowDelegate {
     static let size = NSSize(width: 360, height: 440)
+    static let cornerRadius: CGFloat = 22
 
     private let store: ClipboardStore
     private let settings: AppSettings
@@ -46,7 +47,16 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
                                onClose: { [weak self] in self?.hide() })
         let hosting = NSHostingView(rootView: view)
         hosting.frame = NSRect(origin: .zero, size: Self.size)
-        panel.contentView = hosting
+        hosting.autoresizingMask = [.width, .height]
+        // Clip to the glass shape so the corners are truly transparent; the window shadow
+        // is derived from the opaque pixels and would otherwise outline a square.
+        let container = NSView(frame: hosting.frame)
+        container.wantsLayer = true
+        container.layer?.cornerRadius = Self.cornerRadius
+        container.layer?.cornerCurve = .continuous
+        container.layer?.masksToBounds = true
+        container.addSubview(hosting)
+        panel.contentView = container
         panel.delegate = self
         return panel
     }()
@@ -84,6 +94,8 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         state.selectedIndex = 0
         panel.setFrameOrigin(originNearMouse())
         panel.makeKeyAndOrderFront(nil)
+        // Recompute the shadow once SwiftUI has drawn the rounded glass.
+        DispatchQueue.main.async { [panel] in panel.invalidateShadow() }
         installKeyMonitor()
     }
 

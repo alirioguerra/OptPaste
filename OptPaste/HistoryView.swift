@@ -19,7 +19,7 @@ struct HistoryView: View {
             footer
         }
         .frame(width: HistoryPanelController.size.width, height: HistoryPanelController.size.height)
-        .glassBackground(cornerRadius: 22)
+        .glassBackground(cornerRadius: HistoryPanelController.cornerRadius)
     }
 
     private func header(isEmpty: Bool) -> some View {
@@ -144,6 +144,9 @@ private struct ItemRow: View {
             } else {
                 Label("Imagem indisponível", systemImage: "photo")
             }
+        case .other:
+            Label(item.menuTitle, systemImage: "square.on.square")
+                .font(.system(size: 13, weight: .medium))
         case .files:
             let urls = item.fileURLs ?? []
             HStack(spacing: 8) {
