@@ -52,7 +52,11 @@ final class AppController: NSObject, NSWindowDelegate {
 
     func openOnboarding() {
         if onboardingWindow == nil {
-            onboardingWindow = makeWindow(title: "Bem-vindo ao OptPaste", rootView: OnboardingView(controller: self))
+            let window = makeWindow(title: "Bem-vindo ao OptPaste", rootView: OnboardingView(controller: self))
+            window.styleMask.insert(.fullSizeContentView)
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            onboardingWindow = window
         }
         present(onboardingWindow)
     }

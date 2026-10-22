@@ -46,7 +46,7 @@ struct SettingsView: View {
 // MARK: - Shared rows
 
 /// Re-checks permissions every second, since they are changed in System Settings.
-private let permissionTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+let permissionTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
 struct AutoPasteRow: View {
     @Binding var autoPaste: Bool
@@ -74,6 +74,11 @@ struct AutoPasteRow: View {
                     }
                 }
                 .font(.callout)
+                if !canPost {
+                    Button("Já permitiu? Reabrir o OptPaste") { Paster.relaunch() }
+                        .buttonStyle(.link)
+                        .font(.caption)
+                }
             }
         }
         .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
@@ -133,47 +138,59 @@ struct ShortcutRecorder: View {
     @Binding var shortcut: Shortcut
     /// Shown instead of the current shortcut, e.g. when it is already displayed elsewhere.
     var placeholder: String?
-    @State private var isRecording = false
-    @State private var monitor: Any?
+    @State private var capture = ShortcutCapture()
 
     var body: some View {
         Button {
-            isRecording ? stop() : start()
+            capture.isRecording ? capture.cancel() : capture.start(current: shortcut) { shortcut = $0 }
         } label: {
-            Text(isRecording ? "Pressione as teclas…" : placeholder ?? shortcut.displayString)
+            Text(capture.isRecording ? "Pressione as teclas…" : placeholder ?? shortcut.displayString)
                 .frame(minWidth: 110)
         }
-        .onDisappear { stop() }
+        .onDisappear { capture.cancel() }
     }
+}
 
-    private func start() {
+/// Records the next key combination pressed in the app and re-registers the global hotkey.
+@Observable
+final class ShortcutCapture {
+    private(set) var isRecording = false
+    @ObservationIgnored private var monitor: Any?
+    @ObservationIgnored private var current: Shortcut?
+
+    func start(current: Shortcut, onCapture: @escaping (Shortcut) -> Void) {
+        cancel()
+        self.current = current
         isRecording = true
         // Release the current hotkey so pressing it again can be recorded.
         HotKeyManager.shared.unregister()
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self else { return event }
             if Int(event.keyCode) == kVK_Escape {
-                stop()
+                self.cancel()
                 return nil
             }
-            let modifiers = event.modifierFlags.intersection([.command, .option, .control])
-            guard !modifiers.isEmpty else {
+            guard !event.modifierFlags.intersection([.command, .option, .control]).isEmpty else {
                 NSSound.beep()
                 return nil
             }
-            shortcut = Shortcut(event: event)
-            stop()
+            let shortcut = Shortcut(event: event)
+            self.current = shortcut
+            onCapture(shortcut)
+            self.cancel()
             return nil
         }
     }
 
-    private func stop() {
+    /// Stops recording and registers whichever shortcut is current.
+    func cancel() {
         if let monitor {
             NSEvent.removeMonitor(monitor)
         }
         monitor = nil
-        guard isRecording else { return }
+        guard isRecording, let current else { return }
         isRecording = false
-        if !HotKeyManager.shared.register(shortcut) {
+        if !HotKeyManager.shared.register(current) {
             NSSound.beep()
         }
     }

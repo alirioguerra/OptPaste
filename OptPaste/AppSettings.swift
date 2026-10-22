@@ -27,12 +27,18 @@ struct Shortcut: Codable, Equatable {
     }
 
     var displayString: String {
-        var result = ""
-        if carbonModifiers & UInt32(controlKey) != 0 { result += "⌃" }
-        if carbonModifiers & UInt32(optionKey) != 0 { result += "⌥" }
-        if carbonModifiers & UInt32(shiftKey) != 0 { result += "⇧" }
-        if carbonModifiers & UInt32(cmdKey) != 0 { result += "⌘" }
-        return result + keyLabel
+        keycaps.map(\.symbol).joined()
+    }
+
+    /// The keys as printed on a Mac keyboard, modifiers first in Apple's order.
+    var keycaps: [(symbol: String, name: String?)] {
+        let modifiers: [(Int, String, String)] = [
+            (controlKey, "⌃", "control"), (optionKey, "⌥", "option"),
+            (shiftKey, "⇧", "shift"), (cmdKey, "⌘", "command"),
+        ]
+        return modifiers
+            .filter { carbonModifiers & UInt32($0.0) != 0 }
+            .map { (symbol: $0.1, name: $0.2) } + [(symbol: keyLabel, name: nil)]
     }
 
     private static func label(for event: NSEvent) -> String {

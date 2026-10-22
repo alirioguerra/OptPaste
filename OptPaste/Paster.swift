@@ -17,6 +17,15 @@ enum Paster {
         CGRequestPostEventAccess()
     }
 
+    /// macOS may only apply a newly granted permission to a fresh process.
+    static func relaunch() {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { _, _ in
+            Task { @MainActor in NSApp.terminate(nil) }
+        }
+    }
+
     static func openAccessibilitySettings() {
         openPrivacyPane("Privacy_Accessibility")
     }
