@@ -148,8 +148,18 @@ private struct AboutHeader: View {
                 .resizable()
                 .frame(width: 56, height: 56)
             VStack(alignment: .leading, spacing: 2) {
-                Text("OptPaste")
-                    .font(.title3.weight(.semibold))
+                HStack(spacing: 6) {
+                    Text("OptPaste")
+                        .font(.title3.weight(.semibold))
+                    if UpdateChecker.isPrerelease {
+                        Text("BETA")
+                            .font(.caption2.weight(.bold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .foregroundStyle(.white)
+                            .background(.orange, in: Capsule())
+                    }
+                }
                 Text("Versão \(UpdateChecker.currentVersion) (\(UpdateChecker.currentBuild))")
                     .foregroundStyle(.secondary)
             }
