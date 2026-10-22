@@ -24,6 +24,7 @@ final class AppController: NSObject, NSWindowDelegate {
 
     let settings = AppSettings()
     let license = License()
+    let updater = Updater()
     let store: ClipboardStore
     private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?

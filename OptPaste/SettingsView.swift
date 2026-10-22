@@ -14,7 +14,7 @@ struct SettingsView: View {
 
         Form {
             Section {
-                AboutHeader()
+                AboutHeader(updater: controller.updater)
             }
 
             LicenseSection(license: controller.license)
@@ -212,9 +212,9 @@ private struct LicenseSection: View {
     }
 }
 
-/// App icon, name and version, with a manual update check.
+/// App icon, name and version, with the update controls.
 private struct AboutHeader: View {
-    @State private var updater = UpdateChecker()
+    @Bindable var updater: Updater
 
     var body: some View {
         HStack(spacing: 14) {
@@ -225,7 +225,7 @@ private struct AboutHeader: View {
                 HStack(spacing: 6) {
                     Text("OptPaste")
                         .font(.title3.weight(.semibold))
-                    if UpdateChecker.isPrerelease {
+                    if Updater.isPrerelease {
                         Text("BETA")
                             .font(.caption2.weight(.bold))
                             .padding(.horizontal, 5)
@@ -234,41 +234,19 @@ private struct AboutHeader: View {
                             .background(.orange, in: Capsule())
                     }
                 }
-                Text("Versão \(UpdateChecker.currentVersion) (\(UpdateChecker.currentBuild))")
+                Text("Versão \(Updater.currentVersion) (\(Updater.currentBuild))")
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            VStack(alignment: .trailing, spacing: 4) {
-                if case let .available(version, url) = updater.state {
-                    Button("Baixar versão \(version)…") { NSWorkspace.shared.open(url) }
-                } else {
-                    Button("Procurar atualizações") {
-                        Task { await updater.check() }
-                    }
-                    .disabled(updater.state == .checking)
-                }
-                updateStatus
+            VStack(alignment: .trailing, spacing: 6) {
+                Button("Procurar atualizações…") { updater.checkForUpdates() }
+                    .disabled(!updater.canCheckForUpdates)
+                Toggle("Atualizar automaticamente", isOn: $updater.automaticallyChecksForUpdates)
+                    .toggleStyle(.checkbox)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 4)
-    }
-
-    @ViewBuilder
-    private var updateStatus: some View {
-        switch updater.state {
-        case .idle:
-            EmptyView()
-        case .checking:
-            Text("Procurando…")
-        case .upToDate:
-            Text("Você está na versão mais recente.")
-        case .available:
-            Text("Nova versão disponível.")
-        case .failed:
-            Text("Não foi possível verificar.")
-        }
     }
 }
 
