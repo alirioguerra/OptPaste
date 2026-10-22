@@ -130,6 +130,10 @@ private struct ItemRow: View {
     @ViewBuilder
     private var content: some View {
         switch item.kind {
+        case .text where item.isPassword:
+            Label(item.maskedText, systemImage: "key.fill")
+                .font(.system(size: 13, design: .monospaced))
+                .lineLimit(1)
         case .text:
             Text((item.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).prefix(500))
                 .font(.system(size: 13))

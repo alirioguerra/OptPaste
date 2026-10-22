@@ -212,7 +212,8 @@ final class ClipboardStore {
             let rtf = pasteboard.data(forType: .rtf).flatMap { $0.count <= Self.maxRTFSize ? $0 : nil }
             return ClipboardItem(kind: .text, text: string, rtf: rtf,
                                  signature: "text:" + Self.hash(Data(string.utf8)),
-                                 sourceBundleID: source)
+                                 sourceBundleID: source,
+                                 isConcealed: types.contains(Self.concealedType))
         }
 
         // Anything else (app-specific formats) is kept as long as it can be restored.
