@@ -10,7 +10,7 @@ import Sparkle
 final class Updater: NSObject, SPUStandardUserDriverDelegate {
     /// `CFBundleShortVersionString` must stay numeric, so the pre-release label lives here.
     /// Set to nil for a stable release. `scripts/release.sh` updates it.
-    static let prerelease: String? = "beta.2"
+    static let prerelease: String? = "beta.3"
 
     static var currentVersion: String {
         let base = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
