@@ -19,7 +19,7 @@ final class UpdateChecker {
     private static let latestReleaseURL = URL(string: "https://api.github.com/repos/alirioguerra/OptPaste/releases/latest")!
 
     static var currentVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
     }
 
     static var currentBuild: String {
