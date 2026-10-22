@@ -73,7 +73,6 @@ struct OnboardingView: View {
             }
             .padding(.top, 32)
 
-            Spacer(minLength: 24)
 
             Button {
                 capture.cancel()
@@ -84,9 +83,11 @@ struct OnboardingView: View {
             .controlSize(.large)
             .buttonStyle(.borderedProminent)
             .keyboardShortcut(.defaultAction)
+            .padding(.top, 28)
         }
         .padding(32)
-        .frame(width: 420, height: 610)
+        .frame(width: 420)
+        .fixedSize(horizontal: false, vertical: true)
         .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
         .onDisappear { capture.cancel() }
     }
