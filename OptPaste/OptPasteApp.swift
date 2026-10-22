@@ -23,6 +23,7 @@ final class AppController: NSObject, NSWindowDelegate {
     static let shared = AppController()
 
     let settings = AppSettings()
+    let license = License()
     let store: ClipboardStore
     private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?
@@ -36,11 +37,14 @@ final class AppController: NSObject, NSWindowDelegate {
     func start() {
         store.startMonitoring()
         let panel = panel // created now so it starts tracking the active app right away
-        HotKeyManager.shared.onPress = { panel.toggle() }
+        HotKeyManager.shared.onPress = { [unowned self] in
+            license.isUsable ? panel.toggle() : openSettings()
+        }
         HotKeyManager.shared.register(settings.shortcut)
         if !settings.didCompleteOnboarding {
             openOnboarding()
         }
+        Task { await license.revalidate() }
     }
 
     func openSettings() {
@@ -108,6 +112,9 @@ struct MenuBarContent: View {
         Button("Ajustes…") { controller.openSettings() }
             .keyboardShortcut(",")
         Button("Limpar histórico") { controller.store.clear() }
+        if case .licensed = controller.license.status {} else {
+            Button("Comprar licença…") { NSWorkspace.shared.open(License.checkoutURL) }
+        }
         Divider()
         Button("Sair do OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
