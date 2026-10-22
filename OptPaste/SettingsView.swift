@@ -17,6 +17,8 @@ struct SettingsView: View {
                 AboutHeader()
             }
 
+            LicenseSection(license: controller.license)
+
             Section {
                 LabeledContent("Abrir histórico") {
                     HStack(spacing: 8) {
@@ -134,6 +136,78 @@ private struct StatusText: View {
                 .frame(width: 7, height: 7)
             Text(text)
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// Trial status, key activation and purchase.
+private struct LicenseSection: View {
+    let license: License
+
+    @State private var key = ""
+    @State private var isWorking = false
+    @State private var error: String?
+
+    var body: some View {
+        Section {
+            if case let .licensed(email) = license.status {
+                LabeledContent {
+                    Button("Desativar neste Mac") {
+                        Task {
+                            isWorking = true
+                            await license.deactivate()
+                            isWorking = false
+                        }
+                    }
+                    .disabled(isWorking)
+                } label: {
+                    Text("Ativada")
+                    if let email { Text(email) }
+                }
+            } else {
+                LabeledContent {
+                    Button("Comprar…") { NSWorkspace.shared.open(License.checkoutURL) }
+                } label: {
+                    if case let .trial(daysLeft) = license.status {
+                        Text("Teste grátis")
+                        Text(daysLeft == 1 ? "Resta 1 dia." : "Restam \(daysLeft) dias.")
+                    } else {
+                        Text("Teste encerrado")
+                        Text("Ative uma licença para voltar a abrir o histórico.")
+                    }
+                }
+                HStack(spacing: 8) {
+                    TextField("Chave de licença", text: $key)
+                        .labelsHidden()
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit(activate)
+                    Button("Ativar", action: activate)
+                        .disabled(key.trimmingCharacters(in: .whitespaces).isEmpty || isWorking)
+                }
+            }
+        } header: {
+            Text("Licença")
+        } footer: {
+            if let error {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        }
+    }
+
+    private func activate() {
+        guard !isWorking, !key.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        Task {
+            isWorking = true
+            defer { isWorking = false }
+            do {
+                try await license.activate(key: key)
+                key = ""
+                error = nil
+            } catch {
+                self.error = error.localizedDescription
+            }
         }
     }
 }
