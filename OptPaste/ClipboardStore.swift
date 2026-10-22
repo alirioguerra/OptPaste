@@ -60,7 +60,9 @@ final class ClipboardStore {
     func copyToPasteboard(_ item: ClipboardItem) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        if let payload = loadPayload(of: item) {
+        // Files are rewritten as plain file URLs: Finder's copy also carries private types
+        // that are only valid at copy time, and restoring them makes apps paste the names as text.
+        if item.kind != .files, let payload = loadPayload(of: item) {
             // Restore every format exactly as the source app wrote it.
             pasteboard.writeObjects(payload.map { representations in
                 let pasteboardItem = NSPasteboardItem()
@@ -159,7 +161,7 @@ final class ClipboardStore {
             item.isPinned = old.isPinned
             item.id = old.id // reuse the files already on disk
         }
-        if let payload {
+        if let payload, item.kind != .files {
             savePayload(payload, of: item)
         }
         items.insert(item, at: 0)
@@ -176,6 +178,7 @@ final class ClipboardStore {
 
         if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL],
            !urls.isEmpty {
+            Self.requestFolderAccess(for: urls)
             return ClipboardItem(kind: .files, fileURLs: urls,
                                  signature: "files:" + urls.map(\.path).joined(separator: "\n"),
                                  sourceBundleID: source)
@@ -268,6 +271,18 @@ final class ClipboardStore {
     private func loadPayload(of item: ClipboardItem) -> Payload? {
         guard let data = try? Data(contentsOf: payloadURL(for: item)) else { return nil }
         return try? PropertyListDecoder().decode(Payload.self, from: data)
+    }
+
+    /// Pasting files only works if OptPaste itself can read them, and folders like Downloads,
+    /// Desktop and Documents need the user's consent first. The pasteboard never asks for it,
+    /// so opening the files here triggers the system prompt (once per folder). Done off the
+    /// main thread because the prompt blocks the caller until answered.
+    private nonisolated static func requestFolderAccess(for urls: [URL]) {
+        DispatchQueue.global(qos: .utility).async {
+            for url in urls {
+                try? FileHandle(forReadingFrom: url).close()
+            }
+        }
     }
 
     private func pngData(from pasteboard: NSPasteboard) -> Data? {

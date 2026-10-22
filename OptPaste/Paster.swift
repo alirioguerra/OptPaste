@@ -5,7 +5,7 @@ import OSLog
 /// Sends ⌘V to the frontmost app.
 ///
 /// Only the narrow "post events" permission is needed (listed under Accessibility in
-/// System Settings), not full Accessibility control of other apps, so this works sandboxed.
+/// System Settings), not full Accessibility control of other apps.
 enum Paster {
     static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OptPaste", category: "paste")
 
@@ -79,7 +79,7 @@ enum Paster {
         let command = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue | 0x08)
         down.flags = command
         up.flags = command
-        // The session tap is what sandboxed apps may post to; the HID tap is not reliable there.
+        // Posted at session level, where synthetic events are expected.
         down.post(tap: .cgSessionEventTap)
         up.post(tap: .cgSessionEventTap)
         log.info("⌘V enviado")
