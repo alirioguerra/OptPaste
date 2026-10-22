@@ -131,6 +131,8 @@ struct LaunchAtLoginToggle: View {
 
 struct ShortcutRecorder: View {
     @Binding var shortcut: Shortcut
+    /// Shown instead of the current shortcut, e.g. when it is already displayed elsewhere.
+    var placeholder: String?
     @State private var isRecording = false
     @State private var monitor: Any?
 
@@ -138,7 +140,7 @@ struct ShortcutRecorder: View {
         Button {
             isRecording ? stop() : start()
         } label: {
-            Text(isRecording ? "Pressione o atalho…" : shortcut.displayString)
+            Text(isRecording ? "Pressione as teclas…" : placeholder ?? shortcut.displayString)
                 .frame(minWidth: 110)
         }
         .onDisappear { stop() }

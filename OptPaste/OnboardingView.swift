@@ -47,7 +47,7 @@ struct OnboardingView: View {
             .controlSize(.large)
             .padding(20)
         }
-        .frame(width: 520, height: 460)
+        .frame(width: 540, height: 540)
     }
 
     private func move(by offset: Int) {
@@ -58,21 +58,26 @@ struct OnboardingView: View {
 
 private struct WelcomeStep: View {
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
             Image(systemName: "list.clipboard.fill")
-                .font(.system(size: 54))
+                .font(.system(size: 46))
                 .foregroundStyle(Color.accentColor)
-            Text("Bem-vindo ao OptPaste")
-                .font(.largeTitle.bold())
-            Text("Tudo o que você copia com ⌘C fica guardado. Com um atalho, o histórico abre junto do cursor e você escolhe o que colar.")
+            Text("Tudo o que você copia, sempre à mão")
+                .font(.title.bold())
+                .multilineTextAlignment(.center)
+            Text("O OptPaste guarda o que você copia para que você encontre e cole de novo quando precisar.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 12) {
-                Feature(icon: "menubar.rectangle", text: "Roda em segundo plano, com um ícone na barra de menus.")
-                Feature(icon: "keyboard", text: "Navegue com ↑↓, cole com ↩ ou com os números de 1 a 9.")
-                Feature(icon: "pin", text: "Fixe os itens que você usa sempre.")
-                Feature(icon: "lock", text: "Senhas copiadas de gerenciadores de senha não são salvas.")
+                Feature(icon: "menubar.rectangle", title: "Sempre por perto",
+                        text: "Funciona em segundo plano e fica na barra de menus.")
+                Feature(icon: "keyboard", title: "Acesso rápido",
+                        text: "Navegue com as setas e escolha um item com Return ou com as teclas de 1 a 9.")
+                Feature(icon: "pin", title: "Seus favoritos",
+                        text: "Fixe os itens que você usa com frequência.")
+                Feature(icon: "key", title: "Senhas fora do histórico",
+                        text: "Senhas copiadas de gerenciadores compatíveis não são guardadas.")
             }
             .padding(.top, 6)
         }
@@ -81,14 +86,21 @@ private struct WelcomeStep: View {
 
 private struct Feature: View {
     let icon: String
+    let title: String
     let text: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Image(systemName: icon)
                 .frame(width: 22)
                 .foregroundStyle(Color.accentColor)
-            Text(text)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .fontWeight(.semibold)
+                Text(text)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 }
@@ -97,19 +109,20 @@ private struct ShortcutStep: View {
     @Bindable var settings: AppSettings
 
     private static let suggestions: [(Shortcut, String)] = [
-        (.default, "Recomendado, parecido com o ⊞V do Windows"),
-        (Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(controlKey | cmdKey), keyLabel: "V"),
-         "Útil se você digita “√” com ⌥V"),
-        (Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(controlKey | optionKey), keyLabel: "V"),
-         "Difícil de apertar sem querer"),
+        (.default, "Recomendado. Fácil de lembrar e rápido de usar."),
+        (Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(controlKey | optionKey | cmdKey), keyLabel: "V"),
+         "Alternativa caso o ⌥V já seja usado por outro app."),
+        (Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(controlKey | optionKey | shiftKey | cmdKey), keyLabel: "V"),
+         "A opção com menor chance de conflito."),
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Qual atalho abre o histórico?")
+            Text("Escolha seu atalho")
                 .font(.title.bold())
-            Text("Escolha uma sugestão ou grave a combinação que preferir. Dá para mudar depois nos Ajustes.")
+            Text("Defina as teclas que abrem o histórico. Use uma sugestão ou grave outra combinação. Você pode mudar isso a qualquer momento nos Ajustes.")
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 8) {
                 ForEach(Self.suggestions, id: \.0.displayString) { shortcut, detail in
@@ -117,7 +130,7 @@ private struct ShortcutStep: View {
                         HStack {
                             Text(shortcut.displayString)
                                 .font(.title3.monospaced().weight(.semibold))
-                                .frame(width: 70, alignment: .leading)
+                                .frame(width: 84, alignment: .leading)
                             Text(detail)
                                 .foregroundStyle(.secondary)
                             Spacer()
@@ -138,10 +151,16 @@ private struct ShortcutStep: View {
             }
 
             HStack {
-                Text("Outro atalho:")
-                ShortcutRecorder(shortcut: $settings.shortcut)
+                Text("Personalizar atalho")
+                Spacer()
+                ShortcutRecorder(shortcut: $settings.shortcut,
+                                 placeholder: isSuggested ? "Grave uma combinação de teclas" : nil)
             }
         }
+    }
+
+    private var isSuggested: Bool {
+        Self.suggestions.contains { $0.0 == settings.shortcut }
     }
 
     private func choose(_ shortcut: Shortcut) {

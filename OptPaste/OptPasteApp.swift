@@ -35,7 +35,8 @@ final class AppController: NSObject, NSWindowDelegate {
 
     func start() {
         store.startMonitoring()
-        HotKeyManager.shared.onPress = { [weak self] in self?.panel.toggle() }
+        let panel = panel // created now so it starts tracking the active app right away
+        HotKeyManager.shared.onPress = { panel.toggle() }
         HotKeyManager.shared.register(settings.shortcut)
         if !settings.didCompleteOnboarding {
             openOnboarding()

@@ -1,6 +1,7 @@
 import AppKit
 import Carbon.HIToolbox
 import Observation
+import OSLog
 import SwiftUI
 
 @Observable
@@ -50,9 +51,24 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         return panel
     }()
 
+    private var lastExternalApp: NSRunningApplication?
+    private var activationObserver: NSObjectProtocol?
+
     init(store: ClipboardStore, settings: AppSettings) {
         self.store = store
         self.settings = settings
+        super.init()
+        lastExternalApp = NSWorkspace.shared.frontmostApplication
+        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { [weak self] notification in
+            let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            MainActor.assumeIsolated {
+                if let app, app != NSRunningApplication.current {
+                    self?.lastExternalApp = app
+                }
+            }
+        }
     }
 
     func toggle() {
@@ -61,6 +77,10 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
 
     func show() {
         previousApp = NSWorkspace.shared.frontmostApplication
+        // An open Settings/Onboarding window makes OptPaste frontmost; target the app used before it.
+        if previousApp == NSRunningApplication.current {
+            previousApp = lastExternalApp
+        }
         state.selectedIndex = 0
         panel.setFrameOrigin(originNearMouse())
         panel.makeKeyAndOrderFront(nil)
@@ -142,12 +162,13 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         store.copyToPasteboard(item)
         hide()
 
-        // Without permission (or with auto-paste off) the item just stays on the clipboard.
-        guard settings.autoPaste, Paster.canPostEvents,
-              let app = previousApp, app != NSRunningApplication.current else { return }
-        app.activate()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            Paster.pasteIntoFrontApp()
+        // With auto-paste off the item just stays on the clipboard. The permission is not
+        // checked here: the preflight result can be stale, and without it the post is a no-op.
+        guard settings.autoPaste else { return }
+        guard let app = previousApp, app != NSRunningApplication.current else {
+            Paster.log.info("Colagem ignorada: não há app de destino (o OptPaste estava em primeiro plano)")
+            return
         }
+        Paster.paste(into: app)
     }
 }
