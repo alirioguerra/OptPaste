@@ -3,21 +3,96 @@ import Combine
 import ServiceManagement
 import SwiftUI
 
-struct SettingsView: View {
-    let controller: AppController
+/// The tabs of the Preferences window, shown as toolbar items with icons.
+enum PreferencesTab: CaseIterable {
+    case general, history, paste, finder, license
 
-    @State private var canPost = Paster.canPostEvents
-    @State private var pasteAccess = PasteAccess.current
+    var title: String {
+        switch self {
+        case .general: "Geral"
+        case .history: "Histórico"
+        case .paste: "Colagem"
+        case .finder: "Finder"
+        case .license: "Licença"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gearshape"
+        case .history: "clock.arrow.circlepath"
+        case .paste: "doc.on.clipboard"
+        case .finder: "folder"
+        case .license: "key"
+        }
+    }
+
+    @MainActor @ViewBuilder
+    func pane(_ controller: AppController) -> some View {
+        switch self {
+        case .general: GeneralPane(controller: controller)
+        case .history: HistoryPane(settings: controller.settings, store: controller.store)
+        case .paste: PastePane(settings: controller.settings)
+        case .finder: FinderPane(settings: controller.settings, finderCut: controller.finderCut)
+        case .license: PreferencesPane { LicenseSection(license: controller.license) }
+        }
+    }
+}
+
+/// Toolbar-style tabs; the window resizes to fit each pane.
+final class PreferencesTabController: NSTabViewController {
+    init(controller: AppController) {
+        super.init(nibName: nil, bundle: nil)
+        tabStyle = .toolbar
+        for tab in PreferencesTab.allCases {
+            let hosting = NSHostingController(rootView: tab.pane(controller))
+            hosting.sizingOptions = [.preferredContentSize]
+            hosting.title = tab.title // shown as the window title while the tab is selected
+            let item = NSTabViewItem(viewController: hosting)
+            item.label = tab.title
+            item.image = NSImage(systemSymbolName: tab.symbol, accessibilityDescription: tab.title)
+            addTabViewItem(item)
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    override func tabView(_ tabView: NSTabView, didSelect tabViewItem: NSTabViewItem?) {
+        super.tabView(tabView, didSelect: tabViewItem)
+        guard let window = view.window, let size = tabViewItem?.viewController?.view.fittingSize else { return }
+        // Keep the top edge in place, like System Settings panes.
+        let content = window.frameRect(forContentRect: NSRect(origin: .zero, size: size))
+        var frame = window.frame
+        frame.origin.y += frame.height - content.height
+        frame.size = content.size
+        window.setFrame(frame, display: true, animate: window.isVisible)
+    }
+}
+
+/// A grouped form with the Preferences window's width.
+private struct PreferencesPane<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        Form { content }
+            .formStyle(.grouped)
+            .scrollDisabled(true)
+            .frame(width: 480)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+private struct GeneralPane: View {
+    let controller: AppController
 
     var body: some View {
         @Bindable var settings = controller.settings
 
-        Form {
+        PreferencesPane {
             Section {
                 AboutHeader(updater: controller.updater)
             }
-
-            LicenseSection(license: controller.license)
 
             Section {
                 LabeledContent("Abrir histórico") {
@@ -32,30 +107,47 @@ struct SettingsView: View {
                         ShortcutRecorder(shortcut: $settings.shortcut)
                     }
                 }
-            } header: {
-                Text("Atalho")
+                LaunchAtLoginToggle()
             }
+        }
+    }
+}
 
+private struct HistoryPane: View {
+    @Bindable var settings: AppSettings
+    let store: ClipboardStore
+
+    var body: some View {
+        PreferencesPane {
             Section {
                 Picker("Guardar até", selection: $settings.historyLimit) {
                     ForEach(AppSettings.historyLimitOptions, id: \.self) { Text("\($0) itens") }
                 }
-                .onChange(of: settings.historyLimit) { controller.store.trim() }
+                .onChange(of: settings.historyLimit) { store.trim() }
                 Toggle(isOn: $settings.savePasswords) {
                     Text("Guardar senhas")
                     Text("Inclui o que você copia de gerenciadores de senha.")
                 }
                 LabeledContent("Itens salvos") {
-                    Button("Limpar histórico…") { controller.store.clear() }
+                    Button("Limpar histórico…") { store.clear() }
                 }
-            } header: {
-                Text("Histórico")
             } footer: {
                 Text("Itens fixados são mantidos ao limpar.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+}
 
+private struct PastePane: View {
+    @Bindable var settings: AppSettings
+
+    @State private var canPost = Paster.canPostEvents
+    @State private var pasteAccess = PasteAccess.current
+
+    var body: some View {
+        PreferencesPane {
             Section {
                 Toggle(isOn: $settings.autoPaste) {
                     Text("Colar automaticamente")
@@ -65,26 +157,13 @@ struct SettingsView: View {
                     if enabled && !Paster.canPostEvents { requestPostAccess() }
                 }
                 if settings.autoPaste {
-                    LabeledContent {
-                        if canPost {
-                            StatusText("Permitido")
-                        } else {
-                            HStack(spacing: 8) {
-                                Button("Reabrir app") { Paster.relaunch() }
-                                    .buttonStyle(.borderless)
-                                Button("Permitir…", action: requestPostAccess)
-                            }
-                        }
-                    } label: {
-                        Text("Acessibilidade")
-                        Text("Necessária para colar automaticamente.")
-                    }
+                    AccessibilityRow(canPost: canPost, reason: "Necessária para colar automaticamente.")
                 }
                 LabeledContent {
                     if pasteAccess == .allowed {
                         StatusText("Permitido")
                     } else {
-                        Button("Abrir Ajustes…") { Paster.openPasteSettings() }
+                        Button("Abrir Ajustes do Sistema…") { Paster.openPasteSettings() }
                     }
                 } label: {
                     Text("Área de transferência")
@@ -94,10 +173,23 @@ struct SettingsView: View {
                              : "O acesso está bloqueado.")
                     }
                 }
-            } header: {
-                Text("Colagem")
             }
+        }
+        .onReceive(permissionTicker) { _ in
+            canPost = Paster.canPostEvents
+            pasteAccess = .current
+        }
+    }
+}
 
+private struct FinderPane: View {
+    @Bindable var settings: AppSettings
+    let finderCut: FinderCut
+
+    @State private var canPost = Paster.canPostEvents
+
+    var body: some View {
+        PreferencesPane {
             Section {
                 Toggle(isOn: $settings.finderCut) {
                     Text("Recortar e colar arquivos")
@@ -105,7 +197,7 @@ struct SettingsView: View {
                 }
                 .onChange(of: settings.finderCut) { _, enabled in
                     if enabled && !Paster.canPostEvents { requestPostAccess() }
-                    controller.finderCut.update()
+                    finderCut.update()
                 }
                 if settings.finderCut {
                     LabeledContent("Atalho para recortar") {
@@ -119,50 +211,49 @@ struct SettingsView: View {
                         }
                     }
                     if !canPost {
-                        LabeledContent {
-                            HStack(spacing: 8) {
-                                Button("Reabrir app") { Paster.relaunch() }
-                                    .buttonStyle(.borderless)
-                                Button("Permitir…", action: requestPostAccess)
-                            }
-                        } label: {
-                            Text("Acessibilidade")
-                            Text("Necessária para recortar e colar no Finder.")
-                        }
+                        AccessibilityRow(canPost: canPost, reason: "Necessária para recortar e colar no Finder.")
                     }
                 }
-            } header: {
-                Text("Finder")
-            }
-
-            Section {
-                LaunchAtLoginToggle()
-            } header: {
-                Text("Geral")
             }
         }
-        .formStyle(.grouped)
-        .scrollDisabled(true)
-        .frame(width: 480)
-        .fixedSize(horizontal: false, vertical: true)
-        .onReceive(permissionTicker) { _ in
-            canPost = Paster.canPostEvents
-            pasteAccess = .current
+        .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
+    }
+}
+
+/// The Accessibility ("post events") permission, with a way to grant it.
+private struct AccessibilityRow: View {
+    let canPost: Bool
+    let reason: LocalizedStringKey
+
+    var body: some View {
+        LabeledContent {
+            if canPost {
+                StatusText("Permitido")
+            } else {
+                HStack(spacing: 8) {
+                    Button("Reabrir app") { Paster.relaunch() }
+                        .buttonStyle(.borderless)
+                    Button("Permitir…", action: requestPostAccess)
+                }
+            }
+        } label: {
+            Text("Acessibilidade")
+            Text(reason)
         }
     }
+}
 
-    private func requestPostAccess() {
-        if !Paster.requestAccess() {
-            Paster.openAccessibilitySettings()
-        }
+private func requestPostAccess() {
+    if !Paster.requestAccess() {
+        Paster.openAccessibilitySettings()
     }
 }
 
 /// Quiet status like System Settings uses: a small colored dot and secondary text.
 private struct StatusText: View {
-    let text: String
+    let text: LocalizedStringKey
 
-    init(_ text: String) {
+    init(_ text: LocalizedStringKey) {
         self.text = text
     }
 
@@ -222,8 +313,6 @@ private struct LicenseSection: View {
                         .disabled(key.trimmingCharacters(in: .whitespaces).isEmpty || isWorking)
                 }
             }
-        } header: {
-            Text("Licença")
         } footer: {
             if let error {
                 Text(error)

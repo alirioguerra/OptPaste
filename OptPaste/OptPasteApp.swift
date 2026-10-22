@@ -49,11 +49,20 @@ final class AppController: NSObject, NSWindowDelegate {
             openOnboarding()
         }
         Task { await license.revalidate() }
+        #if DEBUG
+        if CommandLine.arguments.contains("--preferences") { openSettings() }
+        #endif
     }
 
     func openSettings() {
         if settingsWindow == nil {
-            settingsWindow = makeWindow(title: "Ajustes do OptPaste", rootView: SettingsView(controller: self))
+            let window = NSWindow(contentViewController: PreferencesTabController(controller: self))
+            window.styleMask = [.titled, .closable]
+            window.toolbarStyle = .preference
+            window.isReleasedWhenClosed = false
+            window.delegate = self
+            window.center()
+            settingsWindow = window
         }
         present(settingsWindow)
     }
@@ -113,7 +122,7 @@ struct MenuBarContent: View {
     let controller: AppController
 
     var body: some View {
-        Button("Ajustes…") { controller.openSettings() }
+        Button("Preferências…") { controller.openSettings() }
             .keyboardShortcut(",")
         Button("Limpar histórico") { controller.store.clear() }
         if case .licensed = controller.license.status {} else {
