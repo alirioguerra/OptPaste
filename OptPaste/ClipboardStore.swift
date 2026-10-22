@@ -17,6 +17,7 @@ final class ClipboardStore {
     @ObservationIgnored private let imagesDirectory: URL
     @ObservationIgnored private let payloadsDirectory: URL
     @ObservationIgnored private let thumbnails = NSCache<NSUUID, NSImage>()
+    @ObservationIgnored private let vault = Vault()
 
     /// Markers apps add to pasteboard writes (see nspasteboard.org). Concealed is what
     /// password managers use; transient and auto-generated content was not copied by the user.
@@ -39,6 +40,7 @@ final class ClipboardStore {
         for folder in [imagesDirectory, payloadsDirectory] {
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         }
+        migratePlaintextFiles()
         load()
     }
 
@@ -93,7 +95,7 @@ final class ClipboardStore {
                 pasteboard.setData(rtf, forType: .rtf)
             }
         case .image:
-            if let data = try? Data(contentsOf: imageURL(for: item)) {
+            if let data = readSecure(from: imageURL(for: item)) {
                 pasteboard.setData(data, forType: .png)
                 if let tiff = NSImage(data: data)?.tiffRepresentation {
                     pasteboard.setData(tiff, forType: .tiff)
@@ -142,7 +144,7 @@ final class ClipboardStore {
     func thumbnail(for item: ClipboardItem) -> NSImage? {
         let key = item.id as NSUUID
         if let cached = thumbnails.object(forKey: key) { return cached }
-        guard let image = NSImage(contentsOf: imageURL(for: item)) else { return nil }
+        guard let data = readSecure(from: imageURL(for: item)), let image = NSImage(data: data) else { return nil }
         thumbnails.setObject(image, forKey: key)
         return image
     }
@@ -201,7 +203,7 @@ final class ClipboardStore {
             if let existing = items.first(where: { $0.signature == item.signature }) {
                 item.id = existing.id
             } else {
-                try? png.write(to: imageURL(for: item))
+                writeSecure(png, to: imageURL(for: item))
             }
             return item
         }
@@ -265,11 +267,12 @@ final class ClipboardStore {
     private func savePayload(_ payload: Payload, of item: ClipboardItem) {
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .binary
-        try? encoder.encode(payload).write(to: payloadURL(for: item), options: .atomic)
+        guard let data = try? encoder.encode(payload) else { return }
+        writeSecure(data, to: payloadURL(for: item))
     }
 
     private func loadPayload(of item: ClipboardItem) -> Payload? {
-        guard let data = try? Data(contentsOf: payloadURL(for: item)) else { return nil }
+        guard let data = readSecure(from: payloadURL(for: item)) else { return nil }
         return try? PropertyListDecoder().decode(Payload.self, from: data)
     }
 
@@ -311,13 +314,40 @@ final class ClipboardStore {
     }
 
     private func load() {
-        guard let data = try? Data(contentsOf: historyURL),
+        guard let data = readSecure(from: historyURL),
               let decoded = try? JSONDecoder().decode([ClipboardItem].self, from: data) else { return }
         items = decoded
     }
 
     private func save() {
         guard let data = try? JSONEncoder().encode(items) else { return }
-        try? data.write(to: historyURL, options: .atomic)
+        writeSecure(data, to: historyURL)
+    }
+
+    // MARK: - Encryption at rest
+
+    /// Everything goes through the vault; without one (Keychain unavailable) nothing is persisted.
+    private func writeSecure(_ data: Data, to url: URL) {
+        guard let vault, let sealed = try? vault.seal(data) else { return }
+        try? sealed.write(to: url, options: .atomic)
+    }
+
+    private func readSecure(from url: URL) -> Data? {
+        guard let vault, let data = try? Data(contentsOf: url) else { return nil }
+        return try? vault.open(data)
+    }
+
+    /// Encrypts files written in plaintext by versions before encryption existed.
+    private func migratePlaintextFiles() {
+        guard let vault else { return }
+        let fileManager = FileManager.default
+        let stored = [imagesDirectory, payloadsDirectory].flatMap {
+            (try? fileManager.contentsOfDirectory(at: $0, includingPropertiesForKeys: nil)) ?? []
+        }
+        for url in [historyURL] + stored {
+            guard let data = try? Data(contentsOf: url), !Vault.isEncrypted(data),
+                  let sealed = try? vault.seal(data) else { continue }
+            try? sealed.write(to: url, options: .atomic)
+        }
     }
 }
