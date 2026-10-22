@@ -1,13 +1,10 @@
 import Carbon.HIToolbox
+import Combine
 import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
     let controller: AppController
-
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
-    @State private var isTrusted = Paster.isTrusted
-    @State private var pasteAccess = PasteAccess.current
 
     var body: some View {
         @Bindable var settings = controller.settings
@@ -33,73 +30,102 @@ struct SettingsView: View {
             }
 
             Section("Geral") {
-                Toggle("Abrir ao iniciar sessão", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, enabled in
-                        do {
-                            if enabled {
-                                try SMAppService.mainApp.register()
-                            } else {
-                                try SMAppService.mainApp.unregister()
-                            }
-                        } catch {
-                            launchAtLogin = SMAppService.mainApp.status == .enabled
-                        }
-                    }
+                LaunchAtLoginToggle()
             }
 
             Section("Permissões") {
-                LabeledContent("Acessibilidade") {
-                    if isTrusted {
-                        Label("Concedida", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                    } else {
-                        Button("Conceder…") {
-                            Paster.requestTrust()
-                            Paster.openAccessibilitySettings()
-                        }
-                    }
-                }
-                if !isTrusted {
-                    Text("Necessária para colar automaticamente. Sem ela, o item escolhido só é copiado.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                if let message = pasteAccess.message {
-                    Text(message)
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
+                AutoPasteRow(autoPaste: $settings.autoPaste)
+                PasteAccessRow()
             }
         }
         .formStyle(.grouped)
-        .frame(width: 440)
-        .fixedSize(horizontal: false, vertical: true)
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            isTrusted = Paster.isTrusted
-            pasteAccess = .current
-            launchAtLogin = SMAppService.mainApp.status == .enabled
+        .frame(width: 460, height: 520)
+    }
+}
+
+// MARK: - Shared rows
+
+/// Re-checks permissions every second, since they are changed in System Settings.
+private let permissionTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+struct AutoPasteRow: View {
+    @Binding var autoPaste: Bool
+    @State private var canPost = Paster.canPostEvents
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle("Colar automaticamente", isOn: $autoPaste)
+                .onChange(of: autoPaste) { _, enabled in
+                    if enabled && !Paster.canPostEvents { requestAccess() }
+                }
+            Text("Ao escolher um item, o OptPaste envia ⌘V por você. Desligado, o item só é copiado e você cola com ⌘V.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            if autoPaste {
+                HStack {
+                    if canPost {
+                        Label("Permissão concedida", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        Label("Permissão pendente em Acessibilidade", systemImage: "exclamationmark.circle.fill")
+                            .foregroundStyle(.orange)
+                        Spacer()
+                        Button("Permitir…", action: requestAccess)
+                    }
+                }
+                .font(.callout)
+            }
+        }
+        .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
+    }
+
+    private func requestAccess() {
+        if !Paster.requestAccess() {
+            Paster.openAccessibilitySettings()
         }
     }
 }
 
-/// macOS 15.4+ lets users decide whether apps may read the pasteboard without asking.
-private enum PasteAccess {
-    case fine, ask, denied
+struct PasteAccessRow: View {
+    @State private var access = PasteAccess.current
 
-    static var current: PasteAccess {
-        guard #available(macOS 15.4, *) else { return .fine }
-        switch NSPasteboard.general.accessBehavior {
-        case .ask: return .ask
-        case .alwaysDeny: return .denied
-        default: return .fine
+    var body: some View {
+        Group {
+            if let message = access.message {
+                VStack(alignment: .leading, spacing: 6) {
+                    Label("Acesso à área de transferência", systemImage: "exclamationmark.circle.fill")
+                        .foregroundStyle(.orange)
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button("Abrir Privacidade › Colar…") { Paster.openPasteSettings() }
+                }
+            } else {
+                Label("Acesso à área de transferência liberado", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            }
         }
+        .onReceive(permissionTicker) { _ in access = .current }
     }
+}
 
-    var message: String? {
-        switch self {
-        case .fine: nil
-        case .ask: "O macOS vai pedir confirmação a cada cópia. Em Ajustes do Sistema › Privacidade e Segurança › Colar, permita o OptPaste."
-        case .denied: "O acesso à área de transferência está negado. Permita o OptPaste em Ajustes do Sistema › Privacidade e Segurança › Colar."
-        }
+struct LaunchAtLoginToggle: View {
+    @State private var isOn = SMAppService.mainApp.status == .enabled
+
+    var body: some View {
+        Toggle("Abrir ao iniciar sessão", isOn: $isOn)
+            .onChange(of: isOn) { _, enabled in
+                guard enabled != (SMAppService.mainApp.status == .enabled) else { return }
+                do {
+                    if enabled {
+                        try SMAppService.mainApp.register()
+                    } else {
+                        try SMAppService.mainApp.unregister()
+                    }
+                } catch {
+                    isOn = SMAppService.mainApp.status == .enabled
+                }
+            }
     }
 }
 

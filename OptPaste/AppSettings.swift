@@ -53,6 +53,8 @@ final class AppSettings {
     private enum Key {
         static let shortcut = "shortcut"
         static let historyLimit = "historyLimit"
+        static let autoPaste = "autoPaste"
+        static let didCompleteOnboarding = "didCompleteOnboarding"
     }
 
     static let historyLimitOptions = [10, 25, 50, 100, 200]
@@ -69,11 +71,22 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(historyLimit, forKey: Key.historyLimit) }
     }
 
+    /// Sends ⌘V after choosing an item. Off means the item is only copied.
+    var autoPaste: Bool {
+        didSet { UserDefaults.standard.set(autoPaste, forKey: Key.autoPaste) }
+    }
+
+    var didCompleteOnboarding: Bool {
+        didSet { UserDefaults.standard.set(didCompleteOnboarding, forKey: Key.didCompleteOnboarding) }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         shortcut = defaults.data(forKey: Key.shortcut)
             .flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .default
         let limit = defaults.integer(forKey: Key.historyLimit)
         historyLimit = limit > 0 ? limit : 50
+        autoPaste = defaults.object(forKey: Key.autoPaste) as? Bool ?? true
+        didCompleteOnboarding = defaults.bool(forKey: Key.didCompleteOnboarding)
     }
 }

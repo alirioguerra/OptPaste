@@ -23,17 +23,24 @@ struct HistoryView: View {
     }
 
     private func header(isEmpty: Bool) -> some View {
-        HStack {
-            Text("Área de transferência")
-                .font(.headline)
-            Spacer()
-            Button("Limpar tudo") { store.clear() }
-                .buttonStyle(.borderless)
-                .disabled(isEmpty)
+        VStack(spacing: 6) {
+            Capsule()
+                .fill(.secondary.opacity(0.5))
+                .frame(width: 36, height: 4)
+            HStack {
+                Text("Área de transferência")
+                    .font(.headline)
+                Spacer()
+                Button("Limpar tudo") { store.clear() }
+                    .buttonStyle(.borderless)
+                    .disabled(isEmpty)
+            }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 14)
+        .padding(.top, 8)
         .padding(.bottom, 8)
+        .background(WindowDragArea())
+        .help("Arraste para mover")
     }
 
     private var emptyState: some View {
@@ -187,6 +194,18 @@ private enum AppIconCache {
         icons[bundleID] = icon
         return icon
     }
+}
+
+/// Drags the hosting window from wherever this view is placed.
+private struct WindowDragArea: NSViewRepresentable {
+    final class DragView: NSView {
+        override func mouseDown(with event: NSEvent) {
+            window?.performDrag(with: event)
+        }
+    }
+
+    func makeNSView(context: Context) -> NSView { DragView() }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
 // MARK: - Glass

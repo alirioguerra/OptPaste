@@ -19,35 +19,78 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 /// Owns the long-lived pieces of the app: settings, history, hotkey and windows.
-final class AppController {
+final class AppController: NSObject, NSWindowDelegate {
     static let shared = AppController()
 
     let settings = AppSettings()
     let store: ClipboardStore
-    private(set) lazy var panel = HistoryPanelController(store: store)
+    private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?
+    private var onboardingWindow: NSWindow?
 
-    private init() {
+    private override init() {
         store = ClipboardStore(settings: settings)
+        super.init()
     }
 
     func start() {
         store.startMonitoring()
         HotKeyManager.shared.onPress = { [weak self] in self?.panel.toggle() }
         HotKeyManager.shared.register(settings.shortcut)
+        if !settings.didCompleteOnboarding {
+            openOnboarding()
+        }
     }
 
     func openSettings() {
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(controller: self)))
-            window.title = "Ajustes do OptPaste"
-            window.styleMask = [.titled, .closable]
-            window.isReleasedWhenClosed = false
-            window.center()
-            settingsWindow = window
+            settingsWindow = makeWindow(title: "Ajustes do OptPaste", rootView: SettingsView(controller: self))
         }
+        present(settingsWindow)
+    }
+
+    func openOnboarding() {
+        if onboardingWindow == nil {
+            onboardingWindow = makeWindow(title: "Bem-vindo ao OptPaste", rootView: OnboardingView(controller: self))
+        }
+        present(onboardingWindow)
+    }
+
+    func finishOnboarding() {
+        settings.didCompleteOnboarding = true
+        onboardingWindow?.close()
+    }
+
+    // MARK: - Windows
+
+    private func makeWindow(title: String, rootView: some View) -> NSWindow {
+        let hosting = NSHostingController(rootView: rootView)
+        hosting.sizingOptions = [.preferredContentSize]
+        let window = NSWindow(contentViewController: hosting)
+        window.title = title
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        window.center()
+        return window
+    }
+
+    /// A menu-bar-only (accessory) app can't reliably bring its windows to the front,
+    /// so it becomes a regular app while one of its windows is open.
+    private func present(_ window: NSWindow?) {
+        guard let window else { return }
+        NSApp.setActivationPolicy(.regular)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
         NSApp.activate()
-        settingsWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        let closing = notification.object as? NSWindow
+        let stillOpen = [settingsWindow, onboardingWindow].contains { $0 !== closing && $0?.isVisible == true }
+        if !stillOpen {
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 }
 
@@ -73,6 +116,7 @@ struct MenuBarContent: View {
         Button("Limpar histórico") { controller.store.clear() }
         Button("Ajustes…") { controller.openSettings() }
             .keyboardShortcut(",")
+        Button("Boas-vindas e permissões…") { controller.openOnboarding() }
         Divider()
         Button("Sair do OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")

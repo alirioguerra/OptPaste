@@ -33,10 +33,10 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
     static let size = NSSize(width: 360, height: 440)
 
     private let store: ClipboardStore
+    private let settings: AppSettings
     private let state = PanelState()
     private var keyMonitor: Any?
     private var previousApp: NSRunningApplication?
-    private var didPromptForAccessibility = false
 
     private lazy var panel: HistoryPanel = {
         let panel = HistoryPanel(size: Self.size)
@@ -50,8 +50,9 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         return panel
     }()
 
-    init(store: ClipboardStore) {
+    init(store: ClipboardStore, settings: AppSettings) {
         self.store = store
+        self.settings = settings
     }
 
     func toggle() {
@@ -141,15 +142,9 @@ final class HistoryPanelController: NSObject, NSWindowDelegate {
         store.copyToPasteboard(item)
         hide()
 
-        guard Paster.isTrusted else {
-            // Without Accessibility we can only put the item on the clipboard.
-            if !didPromptForAccessibility {
-                didPromptForAccessibility = true
-                Paster.requestTrust()
-            }
-            return
-        }
-        guard let app = previousApp, app != NSRunningApplication.current else { return }
+        // Without permission (or with auto-paste off) the item just stays on the clipboard.
+        guard settings.autoPaste, Paster.canPostEvents,
+              let app = previousApp, app != NSRunningApplication.current else { return }
         app.activate()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             Paster.pasteIntoFrontApp()

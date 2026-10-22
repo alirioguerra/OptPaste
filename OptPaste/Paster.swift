@@ -1,18 +1,29 @@
 import AppKit
 import Carbon.HIToolbox
 
-/// Sends ⌘V to the frontmost app. Synthesizing key events requires the Accessibility
-/// permission, which is why the app is not sandboxed.
+/// Sends ⌘V to the frontmost app.
+///
+/// Only the narrow "post events" permission is needed (listed under Accessibility in
+/// System Settings), not full Accessibility control of other apps, so this works sandboxed.
 enum Paster {
-    static var isTrusted: Bool { AXIsProcessTrusted() }
+    static var canPostEvents: Bool { CGPreflightPostEventAccess() }
 
-    static func requestTrust() {
-        let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
+    /// Shows the system prompt the first time; afterwards it just reports the current state.
+    @discardableResult
+    static func requestAccess() -> Bool {
+        CGRequestPostEventAccess()
     }
 
     static func openAccessibilitySettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+        openPrivacyPane("Privacy_Accessibility")
+    }
+
+    static func openPasteSettings() {
+        openPrivacyPane("Privacy_Pasteboard")
+    }
+
+    private static func openPrivacyPane(_ anchor: String) {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(anchor)") {
             NSWorkspace.shared.open(url)
         }
     }
@@ -26,5 +37,27 @@ enum Paster {
         up?.flags = .maskCommand
         down?.post(tap: .cghidEventTap)
         up?.post(tap: .cghidEventTap)
+    }
+}
+
+/// macOS 15.4+ lets users decide whether apps may read the pasteboard without asking.
+enum PasteAccess {
+    case allowed, ask, denied
+
+    static var current: PasteAccess {
+        guard #available(macOS 15.4, *) else { return .allowed }
+        switch NSPasteboard.general.accessBehavior {
+        case .ask: return .ask
+        case .alwaysDeny: return .denied
+        default: return .allowed
+        }
+    }
+
+    var message: String? {
+        switch self {
+        case .allowed: nil
+        case .ask: "O macOS vai pedir confirmação a cada cópia. Em Privacidade e Segurança › Colar, escolha “Permitir” para o OptPaste."
+        case .denied: "O acesso à área de transferência está negado. Permita o OptPaste em Privacidade e Segurança › Colar."
+        }
     }
 }
