@@ -17,7 +17,7 @@ final class UpdateChecker {
     }
 
     private static let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OptPaste", category: "update")
-    private static let releasesURL = URL(string: "https://api.github.com/repos/alirioguerra/optpaste-site/releases?per_page=20")!
+    private static let releasesURL = URL(string: "https://api.github.com/repos/alirioguerra/OptPaste/releases?per_page=20")!
 
     /// `CFBundleShortVersionString` must stay numeric, so the pre-release label lives here.
     /// Set to nil for a stable release.
