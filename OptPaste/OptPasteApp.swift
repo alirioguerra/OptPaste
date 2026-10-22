@@ -56,6 +56,8 @@ final class AppController: NSObject, NSWindowDelegate {
             window.styleMask.insert(.fullSizeContentView)
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
+            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            window.standardWindowButton(.zoomButton)?.isHidden = true
             onboardingWindow = window
         }
         present(onboardingWindow)

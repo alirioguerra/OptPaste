@@ -6,116 +6,136 @@ import SwiftUI
 struct SettingsView: View {
     let controller: AppController
 
+    @State private var canPost = Paster.canPostEvents
+    @State private var pasteAccess = PasteAccess.current
+
     var body: some View {
         @Bindable var settings = controller.settings
 
         Form {
-            Section("Atalho") {
+            Section {
                 LabeledContent("Abrir histórico") {
-                    ShortcutRecorder(shortcut: $settings.shortcut)
+                    HStack(spacing: 8) {
+                        if settings.shortcut != .default {
+                            Button("Restaurar") {
+                                settings.shortcut = .default
+                                HotKeyManager.shared.register(.default)
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                        ShortcutRecorder(shortcut: $settings.shortcut)
+                    }
                 }
-                Button("Restaurar padrão (⌥V)") {
-                    settings.shortcut = .default
-                    HotKeyManager.shared.register(.default)
-                }
-                .disabled(settings.shortcut == .default)
+            } header: {
+                Text("Atalho")
             }
 
-            Section("Histórico") {
+            Section {
                 Picker("Guardar até", selection: $settings.historyLimit) {
                     ForEach(AppSettings.historyLimitOptions, id: \.self) { Text("\($0) itens") }
                 }
                 .onChange(of: settings.historyLimit) { controller.store.trim() }
-                Toggle("Guardar senhas", isOn: $settings.savePasswords)
-                Button("Limpar histórico", role: .destructive) { controller.store.clear() }
+                Toggle(isOn: $settings.savePasswords) {
+                    Text("Guardar senhas")
+                    Text("Inclui o que você copia de gerenciadores de senha.")
+                }
+                LabeledContent("Itens salvos") {
+                    Button("Limpar histórico…") { controller.store.clear() }
+                }
+            } header: {
+                Text("Histórico")
+            } footer: {
+                Text("Itens fixados são mantidos ao limpar.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            Section("Geral") {
+            Section {
+                Toggle(isOn: $settings.autoPaste) {
+                    Text("Colar automaticamente")
+                    Text("Envia ⌘V ao escolher um item. Desligado, o item é apenas copiado.")
+                }
+                .onChange(of: settings.autoPaste) { _, enabled in
+                    if enabled && !Paster.canPostEvents { requestPostAccess() }
+                }
+                if settings.autoPaste {
+                    LabeledContent {
+                        if canPost {
+                            StatusText("Permitido")
+                        } else {
+                            HStack(spacing: 8) {
+                                Button("Reabrir app") { Paster.relaunch() }
+                                    .buttonStyle(.borderless)
+                                Button("Permitir…", action: requestPostAccess)
+                            }
+                        }
+                    } label: {
+                        Text("Acessibilidade")
+                        Text("Necessária para colar automaticamente.")
+                    }
+                }
+                LabeledContent {
+                    if pasteAccess == .allowed {
+                        StatusText("Permitido")
+                    } else {
+                        Button("Abrir Ajustes…") { Paster.openPasteSettings() }
+                    }
+                } label: {
+                    Text("Área de transferência")
+                    if pasteAccess != .allowed {
+                        Text(pasteAccess == .ask
+                             ? "O macOS vai pedir confirmação a cada cópia."
+                             : "O acesso está bloqueado.")
+                    }
+                }
+            } header: {
+                Text("Colagem")
+            }
+
+            Section {
                 LaunchAtLoginToggle()
-            }
-
-            Section("Permissões") {
-                AutoPasteRow(autoPaste: $settings.autoPaste)
-                PasteAccessRow()
+            } header: {
+                Text("Geral")
             }
         }
         .formStyle(.grouped)
         .scrollDisabled(true)
-        .frame(width: 460)
+        .frame(width: 480)
         .fixedSize(horizontal: false, vertical: true)
-    }
-}
-
-// MARK: - Shared rows
-
-/// Re-checks permissions every second, since they are changed in System Settings.
-let permissionTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
-struct AutoPasteRow: View {
-    @Binding var autoPaste: Bool
-    @State private var canPost = Paster.canPostEvents
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Toggle("Colar automaticamente", isOn: $autoPaste)
-                .onChange(of: autoPaste) { _, enabled in
-                    if enabled && !Paster.canPostEvents { requestAccess() }
-                }
-            Text("Ao escolher um item, o OptPaste envia ⌘V por você. Desligado, o item só é copiado e você cola com ⌘V.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            if autoPaste {
-                HStack {
-                    if canPost {
-                        Label("Permissão concedida", systemImage: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        Label("Permissão pendente em Acessibilidade", systemImage: "exclamationmark.circle.fill")
-                            .foregroundStyle(.orange)
-                        Spacer()
-                        Button("Permitir…", action: requestAccess)
-                    }
-                }
-                .font(.callout)
-                if !canPost {
-                    Button("Já permitiu? Reabrir o OptPaste") { Paster.relaunch() }
-                        .buttonStyle(.link)
-                        .font(.caption)
-                }
-            }
+        .onReceive(permissionTicker) { _ in
+            canPost = Paster.canPostEvents
+            pasteAccess = .current
         }
-        .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
     }
 
-    private func requestAccess() {
+    private func requestPostAccess() {
         if !Paster.requestAccess() {
             Paster.openAccessibilitySettings()
         }
     }
 }
 
-struct PasteAccessRow: View {
-    @State private var access = PasteAccess.current
+/// Quiet status like System Settings uses: a small colored dot and secondary text.
+private struct StatusText: View {
+    let text: String
+
+    init(_ text: String) {
+        self.text = text
+    }
 
     var body: some View {
-        Group {
-            if let message = access.message {
-                VStack(alignment: .leading, spacing: 6) {
-                    Label("Acesso à área de transferência", systemImage: "exclamationmark.circle.fill")
-                        .foregroundStyle(.orange)
-                    Text(message)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button("Abrir Privacidade › Colar…") { Paster.openPasteSettings() }
-                }
-            } else {
-                Label("Acesso à área de transferência liberado", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            }
+        HStack(spacing: 6) {
+            Circle()
+                .fill(.green)
+                .frame(width: 7, height: 7)
+            Text(text)
+                .foregroundStyle(.secondary)
         }
-        .onReceive(permissionTicker) { _ in access = .current }
     }
 }
+
+/// Re-checks permissions every second, since they are changed in System Settings.
+let permissionTicker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
 struct LaunchAtLoginToggle: View {
     @State private var isOn = SMAppService.mainApp.status == .enabled

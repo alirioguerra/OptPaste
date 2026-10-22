@@ -98,12 +98,4 @@ enum PasteAccess {
         default: return .allowed
         }
     }
-
-    var message: String? {
-        switch self {
-        case .allowed: nil
-        case .ask: "O macOS vai pedir confirmação a cada cópia. Em Privacidade e Segurança › Colar, escolha “Permitir” para o OptPaste."
-        case .denied: "O acesso à área de transferência está negado. Permita o OptPaste em Privacidade e Segurança › Colar."
-        }
-    }
 }

@@ -48,31 +48,36 @@ struct OnboardingView: View {
             .padding(.top, 10)
 
             VStack(spacing: 8) {
-                permissionCard
-                Toggle(isOn: $settings.savePasswords) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "key")
+                OptionCard(icon: "doc.on.clipboard", title: "Colar automaticamente",
+                           subtitle: canPost ? "Ativado" : "Permita em Acessibilidade") {
+                    if canPost {
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.title2)
-                            .foregroundStyle(Color.accentColor)
-                            .frame(width: 28)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Guardar senhas")
-                                .fontWeight(.semibold)
-                            Text("Inclui o que você copia de gerenciadores de senha")
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
+                            .foregroundStyle(.green)
+                    } else {
+                        Button("Permitir") {
+                            didRequestAccess = true
+                            if !Paster.requestAccess() {
+                                Paster.openAccessibilitySettings()
+                            }
                         }
                     }
+                } footer: {
+                    if didRequestAccess && !canPost {
+                        Button("Já permitiu? Reabrir o OptPaste") { Paster.relaunch() }
+                            .buttonStyle(.link)
+                            .font(.caption)
+                    }
                 }
-                .toggleStyle(.switch)
-                .padding(14)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.primary.opacity(0.05))
-                )
-            }
-            .padding(.top, 32)
 
+                OptionCard(icon: "key", title: "Guardar senhas",
+                           subtitle: "Inclui gerenciadores de senha") {
+                    Toggle("Guardar senhas", isOn: $settings.savePasswords)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                }
+            }
+            .padding(.top, 28)
 
             Button {
                 capture.cancel()
@@ -83,51 +88,55 @@ struct OnboardingView: View {
             .controlSize(.large)
             .buttonStyle(.borderedProminent)
             .keyboardShortcut(.defaultAction)
-            .padding(.top, 28)
+            .padding(.top, 24)
         }
-        .padding(32)
+        .padding(.horizontal, 32)
+        .padding(.top, 20)
+        .padding(.bottom, 28)
         .frame(width: 420)
         .fixedSize(horizontal: false, vertical: true)
         .onReceive(permissionTicker) { _ in canPost = Paster.canPostEvents }
         .onDisappear { capture.cancel() }
     }
+}
 
-    private var permissionCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 12) {
-                Image(systemName: "doc.on.clipboard")
-                    .font(.title2)
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 28)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Colar automaticamente")
-                        .fontWeight(.semibold)
-                    Text(canPost ? "Ativado" : "Permita em Acessibilidade")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if canPost {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.green)
-                } else {
-                    Button("Permitir") {
-                        didRequestAccess = true
-                        if !Paster.requestAccess() {
-                            Paster.openAccessibilitySettings()
-                        }
-                    }
-                }
+/// Full-width row with an icon, a title/subtitle and a trailing control.
+private struct OptionCard<Trailing: View, Footer: View>: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    @ViewBuilder let trailing: Trailing
+    @ViewBuilder let footer: Footer
+
+    init(icon: String, title: String, subtitle: String,
+         @ViewBuilder trailing: () -> Trailing,
+         @ViewBuilder footer: () -> Footer = { EmptyView() }) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.trailing = trailing()
+        self.footer = footer()
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 28)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .fontWeight(.semibold)
+                Text(subtitle)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                footer
             }
-            if didRequestAccess && !canPost {
-                Button("Já permitiu? Reabrir o OptPaste") { Paster.relaunch() }
-                    .buttonStyle(.link)
-                    .font(.caption)
-                    .padding(.leading, 40)
-            }
+            Spacer(minLength: 8)
+            trailing
         }
         .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 64)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.primary.opacity(0.05))
