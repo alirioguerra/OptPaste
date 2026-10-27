@@ -23,13 +23,13 @@ final class AppController: NSObject, NSWindowDelegate {
     static let shared = AppController()
 
     let settings = AppSettings()
-    let license = License()
     let updater = Updater()
     let store: ClipboardStore
     let finderCut: FinderCut
     private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var freeWindow: NSWindow?
 
     private override init() {
         store = ClipboardStore(settings: settings)
@@ -40,15 +40,16 @@ final class AppController: NSObject, NSWindowDelegate {
     func start() {
         store.startMonitoring()
         let panel = panel // created now so it starts tracking the active app right away
-        HotKeyManager.shared.onPress = { [unowned self] in
-            license.isUsable ? panel.toggle() : openSettings()
+        HotKeyManager.shared.onPress = {
+            panel.toggle()
         }
         HotKeyManager.shared.register(settings.shortcut)
         finderCut.start()
         if !settings.didCompleteOnboarding {
             openOnboarding()
+        } else if settings.showFreeNotice {
+            openFreeNotice()
         }
-        Task { await license.revalidate() }
         #if DEBUG
         if CommandLine.arguments.contains("--preferences") { openSettings() }
         #endif
@@ -83,6 +84,24 @@ final class AppController: NSObject, NSWindowDelegate {
     func finishOnboarding() {
         settings.didCompleteOnboarding = true
         onboardingWindow?.close()
+        openFreeNotice()
+    }
+
+    func openFreeNotice() {
+        if freeWindow == nil {
+            let window = makeWindow(title: String(localized: "OptPaste is free forever"), rootView: FreeView(controller: self))
+            window.styleMask.insert(.fullSizeContentView)
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            window.standardWindowButton(.zoomButton)?.isHidden = true
+            freeWindow = window
+        }
+        present(freeWindow)
+    }
+
+    func closeFreeNotice() {
+        freeWindow?.close()
     }
 
     // MARK: - Windows
@@ -111,7 +130,7 @@ final class AppController: NSObject, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         let closing = notification.object as? NSWindow
-        let stillOpen = [settingsWindow, onboardingWindow].contains { $0 !== closing && $0?.isVisible == true }
+        let stillOpen = [settingsWindow, onboardingWindow, freeWindow].contains { $0 !== closing && $0?.isVisible == true }
         if !stillOpen {
             NSApp.setActivationPolicy(.accessory)
         }
@@ -125,9 +144,7 @@ struct MenuBarContent: View {
         Button("Preferences…") { controller.openSettings() }
             .keyboardShortcut(",")
         Button("Clear History") { controller.store.clear() }
-        if case .licensed = controller.license.status {} else {
-            Button("Buy License…") { NSWorkspace.shared.open(License.checkoutURL) }
-        }
+        Button("Buy Me a Coffee…") { NSWorkspace.shared.open(Support.coffeeURL) }
         Divider()
         Button("Quit OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")

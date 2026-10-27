@@ -11,16 +11,6 @@
         }
       }
     },
-    "%lld days left.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restam %lld dias."
-          }
-        }
-      }
-    },
     "%lld files": {
       "localizations": {
         "pt-BR": {
@@ -41,16 +31,6 @@
         }
       }
     },
-    "1 day left.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resta 1 dia."
-          }
-        }
-      }
-    },
     "Access is blocked.": {
       "localizations": {
         "pt-BR": {
@@ -67,36 +47,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Acessibilidade"
-          }
-        }
-      }
-    },
-    "Activate": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ativar"
-          }
-        }
-      }
-    },
-    "Activate a license to open the history again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ative uma licença para voltar a abrir o histórico."
-          }
-        }
-      }
-    },
-    "Activated": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ativada"
           }
         }
       }
@@ -147,26 +97,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Já permitiu? Reabrir o OptPaste"
-          }
-        }
-      }
-    },
-    "Buy License…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprar licença…"
-          }
-        }
-      }
-    },
-    "Buy…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comprar…"
           }
         }
       }
@@ -271,16 +201,6 @@
         }
       }
     },
-    "Couldn't reach the license server. Check your connection.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível falar com o servidor de licenças. Verifique sua conexão."
-          }
-        }
-      }
-    },
     "Cut and paste files": {
       "localizations": {
         "pt-BR": {
@@ -297,16 +217,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Atalho para recortar"
-          }
-        }
-      }
-    },
-    "Deactivate on This Mac": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desativar neste Mac"
           }
         }
       }
@@ -367,16 +277,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Finder"
-          }
-        }
-      }
-    },
-    "Free trial": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Teste grátis"
           }
         }
       }
@@ -451,52 +351,12 @@
         }
       }
     },
-    "Invalid key.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chave inválida."
-          }
-        }
-      }
-    },
     "Keep up to": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Guardar até"
-          }
-        }
-      }
-    },
-    "Key not found. Make sure you copied the whole key.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chave não encontrada. Confira se copiou a chave inteira."
-          }
-        }
-      }
-    },
-    "License": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Licença"
-          }
-        }
-      }
-    },
-    "License key": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chave de licença"
           }
         }
       }
@@ -711,36 +571,6 @@
         }
       }
     },
-    "This key has expired or was disabled.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esta chave expirou ou foi desativada."
-          }
-        }
-      }
-    },
-    "This key is already active on the maximum number of Macs. Deactivate it on another Mac.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esta chave já está ativa no número máximo de Macs. Desative-a em outro Mac."
-          }
-        }
-      }
-    },
-    "Trial ended": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Teste encerrado"
-          }
-        }
-      }
-    },
     "Unpin": {
       "localizations": {
         "pt-BR": {
@@ -799,6 +629,89 @@
     },
     "%lld": {
       "shouldTranslate": false
+    },
+    "Buy Me a Coffee": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me pague um café"
+          }
+        }
+      }
+    },
+    "Buy Me a Coffee…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me pague um café…"
+          }
+        }
+      }
+    },
+    "buymeacoffee.com/alirioguerra": {
+      "shouldTranslate": false
+    },
+    "Continue": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        }
+      }
+    },
+    "If it helps you, you can support it with a coffee.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ele te ajuda, você pode apoiar o projeto com um café."
+          }
+        }
+      }
+    },
+    "No trial, no license, no ads. If OptPaste helps you and you’d like to support it, you can buy me a coffee.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem período de teste, sem licença, sem anúncios. Se o OptPaste te ajuda e você quiser apoiar o projeto, pode me pagar um café."
+          }
+        }
+      }
+    },
+    "OptPaste is free forever": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O OptPaste é gratuito para sempre"
+          }
+        }
+      }
+    },
+    "Show on launch": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar ao abrir o app"
+          }
+        }
+      }
+    },
+    "Support": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoiar"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

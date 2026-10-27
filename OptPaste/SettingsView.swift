@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The tabs of the Preferences window, shown as toolbar items with icons.
 enum PreferencesTab: CaseIterable {
-    case general, history, paste, finder, license
+    case general, history, paste, finder, support
 
     var title: String {
         switch self {
@@ -13,7 +13,7 @@ enum PreferencesTab: CaseIterable {
         case .history: String(localized: "History")
         case .paste: String(localized: "Paste")
         case .finder: String(localized: "Finder")
-        case .license: String(localized: "License")
+        case .support: String(localized: "Support")
         }
     }
 
@@ -23,7 +23,7 @@ enum PreferencesTab: CaseIterable {
         case .history: "clock.arrow.circlepath"
         case .paste: "doc.on.clipboard"
         case .finder: "folder"
-        case .license: "key"
+        case .support: "cup.and.saucer"
         }
     }
 
@@ -34,7 +34,7 @@ enum PreferencesTab: CaseIterable {
         case .history: HistoryPane(settings: controller.settings, store: controller.store)
         case .paste: PastePane(settings: controller.settings)
         case .finder: FinderPane(settings: controller.settings, finderCut: controller.finderCut)
-        case .license: PreferencesPane { LicenseSection(license: controller.license) }
+        case .support: PreferencesPane { SupportSection() }
         }
     }
 }
@@ -264,76 +264,6 @@ private struct StatusText: View {
                 .frame(width: 7, height: 7)
             Text(text)
                 .foregroundStyle(.secondary)
-        }
-    }
-}
-
-/// Trial status, key activation and purchase.
-private struct LicenseSection: View {
-    let license: License
-
-    @State private var key = ""
-    @State private var isWorking = false
-    @State private var error: String?
-
-    var body: some View {
-        Section {
-            if case let .licensed(email) = license.status {
-                LabeledContent {
-                    Button("Deactivate on This Mac") {
-                        Task {
-                            isWorking = true
-                            await license.deactivate()
-                            isWorking = false
-                        }
-                    }
-                    .disabled(isWorking)
-                } label: {
-                    Text("Activated")
-                    if let email { Text(email) }
-                }
-            } else {
-                LabeledContent {
-                    Button("Buy…") { NSWorkspace.shared.open(License.checkoutURL) }
-                } label: {
-                    if case let .trial(daysLeft) = license.status {
-                        Text("Free trial")
-                        daysLeft == 1 ? Text("1 day left.") : Text("\(daysLeft) days left.")
-                    } else {
-                        Text("Trial ended")
-                        Text("Activate a license to open the history again.")
-                    }
-                }
-                HStack(spacing: 8) {
-                    TextField("License key", text: $key)
-                        .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-                        .onSubmit(activate)
-                    Button("Activate", action: activate)
-                        .disabled(key.trimmingCharacters(in: .whitespaces).isEmpty || isWorking)
-                }
-            }
-        } footer: {
-            if let error {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
-        }
-    }
-
-    private func activate() {
-        guard !isWorking, !key.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        Task {
-            isWorking = true
-            defer { isWorking = false }
-            do {
-                try await license.activate(key: key)
-                key = ""
-                error = nil
-            } catch {
-                self.error = error.localizedDescription
-            }
         }
     }
 }

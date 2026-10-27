@@ -64,6 +64,7 @@ final class AppSettings {
         static let autoPaste = "autoPaste"
         static let savePasswords = "savePasswords"
         static let didCompleteOnboarding = "didCompleteOnboarding"
+        static let showFreeNotice = "showFreeNotice"
         static let finderCut = "finderCut"
         static let cutShortcut = "cutShortcut"
     }
@@ -96,6 +97,11 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(didCompleteOnboarding, forKey: Key.didCompleteOnboarding) }
     }
 
+    /// Shows the "free forever" window each time the app opens.
+    var showFreeNotice: Bool {
+        didSet { UserDefaults.standard.set(showFreeNotice, forKey: Key.showFreeNotice) }
+    }
+
     /// In Finder, the cut shortcut marks the selected files as cut and the next ⌘V moves them.
     var finderCut: Bool {
         didSet { UserDefaults.standard.set(finderCut, forKey: Key.finderCut) }
@@ -118,6 +124,7 @@ final class AppSettings {
         autoPaste = defaults.object(forKey: Key.autoPaste) as? Bool ?? true
         savePasswords = defaults.object(forKey: Key.savePasswords) as? Bool ?? true
         didCompleteOnboarding = defaults.bool(forKey: Key.didCompleteOnboarding)
+        showFreeNotice = defaults.object(forKey: Key.showFreeNotice) as? Bool ?? true
         finderCut = defaults.object(forKey: Key.finderCut) as? Bool ?? true
         cutShortcut = defaults.data(forKey: Key.cutShortcut)
             .flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .defaultCut
