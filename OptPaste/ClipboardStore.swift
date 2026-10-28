@@ -190,7 +190,7 @@ final class ClipboardStore {
         // no plain text. Check it before images/text so it is labeled as layers.
         if let payload, types.contains(.html),
            pasteboard.string(forType: .html)?.contains("(figmeta)") == true {
-            return ClipboardItem(kind: .other, title: "Camadas do Figma",
+            return ClipboardItem(kind: .other, title: String(localized: "Figma layers"),
                                  signature: "other:" + Self.hash(payload), sourceBundleID: source)
         }
 
@@ -218,7 +218,7 @@ final class ClipboardStore {
 
         // Anything else (app-specific formats) is kept as long as it can be restored.
         guard let payload else { return nil }
-        let title = sourceApp?.localizedName.map { "Conteúdo do \($0)" } ?? "Conteúdo copiado"
+        let title = sourceApp?.localizedName.map { String(localized: "Content from \($0)") } ?? String(localized: "Copied content")
         return ClipboardItem(kind: .other, title: title,
                              signature: "other:" + Self.hash(payload), sourceBundleID: source)
     }

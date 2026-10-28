@@ -28,10 +28,10 @@ struct HistoryView: View {
                 .fill(.secondary.opacity(0.5))
                 .frame(width: 36, height: 4)
             HStack {
-                Text("Área de transferência")
+                Text("Clipboard")
                     .font(.headline)
                 Spacer()
-                Button("Limpar tudo") { store.clear() }
+                Button("Clear All") { store.clear() }
                     .buttonStyle(.borderless)
                     .disabled(isEmpty)
             }
@@ -40,7 +40,7 @@ struct HistoryView: View {
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(WindowDragArea())
-        .help("Arraste para mover")
+        .help("Drag to move")
     }
 
     private var emptyState: some View {
@@ -48,9 +48,9 @@ struct HistoryView: View {
             Image(systemName: "clipboard")
                 .font(.system(size: 34, weight: .light))
                 .foregroundStyle(.secondary)
-            Text("Nada copiado ainda")
+            Text("Nothing copied yet")
                 .font(.headline)
-            Text("Copie algo com ⌘C e ele aparecerá aqui.")
+            Text("Copy something with ⌘C and it will show up here.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -80,7 +80,7 @@ struct HistoryView: View {
     }
 
     private var footer: some View {
-        Text("↩ colar   ↑↓ navegar   P fixar   ⌫ apagar   esc fechar")
+        Text("↩ paste   ↑↓ navigate   P pin   ⌫ delete   esc close")
             .font(.caption2)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity)
@@ -146,7 +146,7 @@ private struct ItemRow: View {
                     .frame(maxHeight: 90, alignment: .leading)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             } else {
-                Label("Imagem indisponível", systemImage: "photo")
+                Label("Image unavailable", systemImage: "photo")
             }
         case .other:
             Label(item.menuTitle, systemImage: "square.on.square")
@@ -180,11 +180,11 @@ private struct ItemRow: View {
             Button { store.togglePin(item) } label: {
                 Image(systemName: item.isPinned ? "pin.slash" : "pin")
             }
-            .help(item.isPinned ? "Desafixar" : "Fixar")
+            .help(item.isPinned ? Text("Unpin") : Text("Pin"))
             Button { store.remove(item) } label: {
                 Image(systemName: "trash")
             }
-            .help("Apagar")
+            .help("Delete")
         }
         .buttonStyle(.borderless)
     }

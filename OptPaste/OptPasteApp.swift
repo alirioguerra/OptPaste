@@ -23,40 +23,54 @@ final class AppController: NSObject, NSWindowDelegate {
     static let shared = AppController()
 
     let settings = AppSettings()
-    let license = License()
+    let updater = Updater()
     let store: ClipboardStore
+    let finderCut: FinderCut
     private(set) lazy var panel = HistoryPanelController(store: store, settings: settings)
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var freeWindow: NSWindow?
 
     private override init() {
         store = ClipboardStore(settings: settings)
+        finderCut = FinderCut(settings: settings)
         super.init()
     }
 
     func start() {
         store.startMonitoring()
         let panel = panel // created now so it starts tracking the active app right away
-        HotKeyManager.shared.onPress = { [unowned self] in
-            license.isUsable ? panel.toggle() : openSettings()
+        HotKeyManager.shared.onPress = {
+            panel.toggle()
         }
         HotKeyManager.shared.register(settings.shortcut)
+        finderCut.start()
         if !settings.didCompleteOnboarding {
             openOnboarding()
+        } else if settings.showFreeNotice {
+            openFreeNotice()
         }
-        Task { await license.revalidate() }
+        #if DEBUG
+        if CommandLine.arguments.contains("--preferences") { openSettings() }
+        #endif
     }
 
     func openSettings() {
         if settingsWindow == nil {
-            settingsWindow = makeWindow(title: "Ajustes do OptPaste", rootView: SettingsView(controller: self))
+            let window = NSWindow(contentViewController: PreferencesTabController(controller: self))
+            window.styleMask = [.titled, .closable]
+            window.toolbarStyle = .preference
+            window.isReleasedWhenClosed = false
+            window.delegate = self
+            window.center()
+            settingsWindow = window
         }
         present(settingsWindow)
     }
 
     func openOnboarding() {
         if onboardingWindow == nil {
-            let window = makeWindow(title: "Bem-vindo ao OptPaste", rootView: OnboardingView(controller: self))
+            let window = makeWindow(title: String(localized: "Welcome to OptPaste"), rootView: OnboardingView(controller: self))
             window.styleMask.insert(.fullSizeContentView)
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
@@ -70,6 +84,24 @@ final class AppController: NSObject, NSWindowDelegate {
     func finishOnboarding() {
         settings.didCompleteOnboarding = true
         onboardingWindow?.close()
+        openFreeNotice()
+    }
+
+    func openFreeNotice() {
+        if freeWindow == nil {
+            let window = makeWindow(title: String(localized: "OptPaste is free forever"), rootView: FreeView(controller: self))
+            window.styleMask.insert(.fullSizeContentView)
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            window.standardWindowButton(.zoomButton)?.isHidden = true
+            freeWindow = window
+        }
+        present(freeWindow)
+    }
+
+    func closeFreeNotice() {
+        freeWindow?.close()
     }
 
     // MARK: - Windows
@@ -98,7 +130,7 @@ final class AppController: NSObject, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         let closing = notification.object as? NSWindow
-        let stillOpen = [settingsWindow, onboardingWindow].contains { $0 !== closing && $0?.isVisible == true }
+        let stillOpen = [settingsWindow, onboardingWindow, freeWindow].contains { $0 !== closing && $0?.isVisible == true }
         if !stillOpen {
             NSApp.setActivationPolicy(.accessory)
         }
@@ -109,14 +141,12 @@ struct MenuBarContent: View {
     let controller: AppController
 
     var body: some View {
-        Button("Ajustes…") { controller.openSettings() }
+        Button("Preferences…") { controller.openSettings() }
             .keyboardShortcut(",")
-        Button("Limpar histórico") { controller.store.clear() }
-        if case .licensed = controller.license.status {} else {
-            Button("Comprar licença…") { NSWorkspace.shared.open(License.checkoutURL) }
-        }
+        Button("Clear History") { controller.store.clear() }
+        Button("Buy Me a Coffee…") { NSWorkspace.shared.open(Support.coffeeURL) }
         Divider()
-        Button("Sair do OptPaste") { NSApp.terminate(nil) }
+        Button("Quit OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }
 }

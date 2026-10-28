@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Merged into the generated Info.plist. Lists Portuguese so Sparkle's windows use its pt-BR strings. -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>pt-BR</string>
+		<string>en</string>
+	</array>
+	<key>SUFeedURL</key>
+	<string>https://optpaste.pages.dev/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>p7NRpo+Ym9oknzY+4EjOZGHLZjsujI0giYDXfh3ys2w=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+</dict>
+</plist>

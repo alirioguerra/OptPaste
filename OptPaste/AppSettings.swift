@@ -9,6 +9,8 @@ struct Shortcut: Codable, Equatable {
     var keyLabel: String
 
     static let `default` = Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(optionKey), keyLabel: "V")
+    static let defaultCut = Shortcut(keyCode: UInt32(kVK_ANSI_X), carbonModifiers: UInt32(cmdKey), keyLabel: "X")
+    static let commandV = Shortcut(keyCode: UInt32(kVK_ANSI_V), carbonModifiers: UInt32(cmdKey), keyLabel: "V")
 
     init(keyCode: UInt32, carbonModifiers: UInt32, keyLabel: String) {
         self.keyCode = keyCode
@@ -43,7 +45,7 @@ struct Shortcut: Codable, Equatable {
 
     private static func label(for event: NSEvent) -> String {
         let special: [Int: String] = [
-            kVK_Space: "Espaço", kVK_Return: "↩", kVK_Tab: "⇥", kVK_Delete: "⌫",
+            kVK_Space: String(localized: "Space"), kVK_Return: "↩", kVK_Tab: "⇥", kVK_Delete: "⌫",
             kVK_ForwardDelete: "⌦", kVK_LeftArrow: "←", kVK_RightArrow: "→",
             kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_Home: "↖", kVK_End: "↘",
             kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4", kVK_F5: "F5", kVK_F6: "F6",
@@ -62,6 +64,9 @@ final class AppSettings {
         static let autoPaste = "autoPaste"
         static let savePasswords = "savePasswords"
         static let didCompleteOnboarding = "didCompleteOnboarding"
+        static let showFreeNotice = "showFreeNotice"
+        static let finderCut = "finderCut"
+        static let cutShortcut = "cutShortcut"
     }
 
     static let historyLimitOptions = [10, 25, 50, 100, 200]
@@ -92,6 +97,24 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(didCompleteOnboarding, forKey: Key.didCompleteOnboarding) }
     }
 
+    /// Shows the "free forever" window each time the app opens.
+    var showFreeNotice: Bool {
+        didSet { UserDefaults.standard.set(showFreeNotice, forKey: Key.showFreeNotice) }
+    }
+
+    /// In Finder, the cut shortcut marks the selected files as cut and the next ⌘V moves them.
+    var finderCut: Bool {
+        didSet { UserDefaults.standard.set(finderCut, forKey: Key.finderCut) }
+    }
+
+    var cutShortcut: Shortcut {
+        didSet {
+            if let data = try? JSONEncoder().encode(cutShortcut) {
+                UserDefaults.standard.set(data, forKey: Key.cutShortcut)
+            }
+        }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         shortcut = defaults.data(forKey: Key.shortcut)
@@ -101,5 +124,9 @@ final class AppSettings {
         autoPaste = defaults.object(forKey: Key.autoPaste) as? Bool ?? true
         savePasswords = defaults.object(forKey: Key.savePasswords) as? Bool ?? true
         didCompleteOnboarding = defaults.bool(forKey: Key.didCompleteOnboarding)
+        showFreeNotice = defaults.object(forKey: Key.showFreeNotice) as? Bool ?? true
+        finderCut = defaults.object(forKey: Key.finderCut) as? Bool ?? true
+        cutShortcut = defaults.data(forKey: Key.cutShortcut)
+            .flatMap { try? JSONDecoder().decode(Shortcut.self, from: $0) } ?? .defaultCut
     }
 }
