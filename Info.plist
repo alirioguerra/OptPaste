@@ -9,7 +9,7 @@
 		<string>en</string>
 	</array>
 	<key>SUFeedURL</key>
-	<string>https://optpaste-site.vercel.app/appcast.xml</string>
+	<string>https://optpaste.pages.dev/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>p7NRpo+Ym9oknzY+4EjOZGHLZjsujI0giYDXfh3ys2w=</string>
 	<key>SUEnableAutomaticChecks</key>

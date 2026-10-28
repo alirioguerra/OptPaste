@@ -16,7 +16,7 @@ pre=${version#$core}; pre=${pre#-}
 repo=${0:A:h:h}
 site=${SITE_DIR:-$repo/../optpaste-site}
 project=$repo/OptPaste.xcodeproj/project.pbxproj
-dmg_url=https://optpaste-site.vercel.app/downloads/OptPaste.dmg
+dmg_url=https://optpaste.pages.dev/downloads/OptPaste.dmg
 cd "$repo"
 
 [[ -z $(git status --porcelain --untracked-files=no) ]] || { echo "app repo has uncommitted changes" >&2; exit 1; }
@@ -80,6 +80,9 @@ git push -q origin HEAD "v$version"
 git -C "$site" add public/downloads/OptPaste.dmg public/appcast.xml public/latest.json
 git -C "$site" commit -q -m "$message"
 git -C "$site" push -q origin HEAD
+# The site is a direct-upload Cloudflare Pages project, so pushing doesn't publish it.
+[[ -f ~/.dev/cloudflare.env ]] && { set -a; source ~/.dev/cloudflare.env; set +a; }
+npm --prefix "$site" run --silent deploy
 
 if command -v gh >/dev/null; then
   gh release create "v$version" "$site/public/downloads/OptPaste.dmg" \
