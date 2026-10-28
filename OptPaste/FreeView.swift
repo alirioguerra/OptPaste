@@ -2,6 +2,7 @@ import SwiftUI
 
 enum Support {
     static let coffeeURL = URL(string: "https://buymeacoffee.com/alirioguerra")!
+    static let repoURL = URL(string: "https://github.com/alirioguerra/OptPaste")!
 }
 
 /// Shown on launch: OptPaste is free forever, with an optional way to support it.
@@ -39,6 +40,9 @@ struct FreeView: View {
             Link("buymeacoffee.com/alirioguerra", destination: Support.coffeeURL)
                 .font(.callout)
                 .padding(.top, 10)
+            Link("Open source on GitHub", destination: Support.repoURL)
+                .font(.callout)
+                .padding(.top, 4)
 
             Button {
                 controller.closeFreeNotice()
@@ -71,6 +75,12 @@ struct SupportSection: View {
             } label: {
                 Text("OptPaste is free forever")
                 Text("If it helps you, you can support it with a coffee.")
+            }
+            LabeledContent {
+                Button("View on GitHub…") { NSWorkspace.shared.open(Support.repoURL) }
+            } label: {
+                Text("Open source")
+                Text("Anyone can check what OptPaste does with what you copy.")
             }
         }
     }

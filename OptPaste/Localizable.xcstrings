@@ -712,6 +712,46 @@
           }
         }
       }
+    },
+    "Open source on GitHub": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código aberto no GitHub"
+          }
+        }
+      }
+    },
+    "View on GitHub…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver no GitHub…"
+          }
+        }
+      }
+    },
+    "Open source": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código aberto"
+          }
+        }
+      }
+    },
+    "Anyone can check what OptPaste does with what you copy.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualquer pessoa pode conferir o que o OptPaste faz com o que você copia."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
