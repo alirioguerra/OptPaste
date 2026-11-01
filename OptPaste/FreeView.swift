@@ -20,7 +20,7 @@ struct FreeView: View {
                 .font(.title.bold())
                 .multilineTextAlignment(.center)
                 .padding(.top, 16)
-            Text("No trial, no license, no ads. If OptPaste helps you and you’d like to support it, you can buy me a coffee.")
+            Text("No trial, no license, no ads.")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -29,7 +29,7 @@ struct FreeView: View {
             Button {
                 NSWorkspace.shared.open(Support.coffeeURL)
             } label: {
-                Label("Buy Me a Coffee", systemImage: "cup.and.saucer.fill")
+                Label("Support", systemImage: "cup.and.saucer.fill")
                     .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
@@ -71,10 +71,9 @@ struct SupportSection: View {
     var body: some View {
         Section {
             LabeledContent {
-                Button("Buy Me a Coffee…") { NSWorkspace.shared.open(Support.coffeeURL) }
+                Button("Support…") { NSWorkspace.shared.open(Support.coffeeURL) }
             } label: {
                 Text("OptPaste is free forever")
-                Text("If it helps you, you can support it with a coffee.")
             }
             LabeledContent {
                 Button("View on GitHub…") { NSWorkspace.shared.open(Support.repoURL) }

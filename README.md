@@ -116,8 +116,6 @@ Sparkle comes in through Swift Package Manager, so Xcode resolves it on the firs
 
 ## Support
 
-OptPaste is and always will be free. If it helps you and you'd like to support it:
-
 <a href="https://www.buymeacoffee.com/alirioguerra" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="60" width="217" /></a>
 
 Paying for an Apple Developer account is what will let the app be signed and notarized, so the warning above goes away.

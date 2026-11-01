@@ -630,26 +630,6 @@
     "%lld": {
       "shouldTranslate": false
     },
-    "Buy Me a Coffee": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Me pague um café"
-          }
-        }
-      }
-    },
-    "Buy Me a Coffee…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Me pague um café…"
-          }
-        }
-      }
-    },
     "buymeacoffee.com/alirioguerra": {
       "shouldTranslate": false
     },
@@ -659,26 +639,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Continuar"
-          }
-        }
-      }
-    },
-    "If it helps you, you can support it with a coffee.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se ele te ajuda, você pode apoiar o projeto com um café."
-          }
-        }
-      }
-    },
-    "No trial, no license, no ads. If OptPaste helps you and you’d like to support it, you can buy me a coffee.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sem período de teste, sem licença, sem anúncios. Se o OptPaste te ajuda e você quiser apoiar o projeto, pode me pagar um café."
           }
         }
       }
@@ -749,6 +709,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Qualquer pessoa pode conferir o que o OptPaste faz com o que você copia."
+          }
+        }
+      }
+    },
+    "Support…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoiar…"
+          }
+        }
+      }
+    },
+    "No trial, no license, no ads.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem período de teste, sem licença, sem anúncios."
           }
         }
       }

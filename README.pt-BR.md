@@ -116,8 +116,6 @@ O Sparkle vem pelo Swift Package Manager, então o Xcode resolve na primeira bui
 
 ## Apoie
 
-O OptPaste é e sempre será gratuito. Se ele te ajuda e você quiser apoiar:
-
 <a href="https://www.buymeacoffee.com/alirioguerra" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" height="60" width="217" /></a>
 
 Pagar uma conta de desenvolvedor da Apple é o que vai permitir assinar e notarizar o app, e aí o aviso acima some.

@@ -144,7 +144,7 @@ struct MenuBarContent: View {
         Button("Preferences…") { controller.openSettings() }
             .keyboardShortcut(",")
         Button("Clear History") { controller.store.clear() }
-        Button("Buy Me a Coffee…") { NSWorkspace.shared.open(Support.coffeeURL) }
+        Button("Support…") { NSWorkspace.shared.open(Support.coffeeURL) }
         Divider()
         Button("Quit OptPaste") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
