@@ -13,7 +13,7 @@ A clipboard history for the Mac that opens with <kbd>⌥</kbd> <kbd>V</kbd>, on 
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-F05138?logo=swift&logoColor=white)
 ![Free](https://img.shields.io/badge/price-free%20forever-2ea44f)
 
-[**Download**](https://optpaste.pages.dev/downloads/OptPaste.dmg) · [Website](https://optpaste.pages.dev) · [Releases](https://github.com/alirioguerra/OptPaste/releases) · [Português](README.pt-BR.md)
+[**Download**](https://optpaste.acervoapps.com.br/downloads/OptPaste.dmg) · [Website](https://optpaste.acervoapps.com.br) · [Releases](https://github.com/alirioguerra/OptPaste/releases) · [Português](README.pt-BR.md)
 
 <br />
 
@@ -66,7 +66,7 @@ Your history never leaves your Mac.
 
 ## Install
 
-1. Download [**OptPaste.dmg**](https://optpaste.pages.dev/downloads/OptPaste.dmg) (or grab it from [Releases](https://github.com/alirioguerra/OptPaste/releases/latest)).
+1. Download [**OptPaste.dmg**](https://optpaste.acervoapps.com.br/downloads/OptPaste.dmg) (or grab it from [Releases](https://github.com/alirioguerra/OptPaste/releases/latest)).
 2. Open the `.dmg` and drag **OptPaste** into **Applications**.
 3. Open it and follow the steps below the first time.
 

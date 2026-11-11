@@ -13,7 +13,7 @@ Histórico da área de transferência para Mac que abre com <kbd>⌥</kbd> <kbd>
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-F05138?logo=swift&logoColor=white)
 ![Grátis](https://img.shields.io/badge/pre%C3%A7o-gr%C3%A1tis%20para%20sempre-2ea44f)
 
-[**Baixar**](https://optpaste.pages.dev/downloads/OptPaste.dmg) · [Site](https://optpaste.pages.dev) · [Versões](https://github.com/alirioguerra/OptPaste/releases) · [English](README.md)
+[**Baixar**](https://optpaste.acervoapps.com.br/downloads/OptPaste.dmg) · [Site](https://optpaste.acervoapps.com.br) · [Versões](https://github.com/alirioguerra/OptPaste/releases) · [English](README.md)
 
 <br />
 
@@ -66,7 +66,7 @@ Seu histórico nunca sai do seu Mac.
 
 ## Instalação
 
-1. Baixe o [**OptPaste.dmg**](https://optpaste.pages.dev/downloads/OptPaste.dmg) (ou pegue em [Versões](https://github.com/alirioguerra/OptPaste/releases/latest)).
+1. Baixe o [**OptPaste.dmg**](https://optpaste.acervoapps.com.br/downloads/OptPaste.dmg) (ou pegue em [Versões](https://github.com/alirioguerra/OptPaste/releases/latest)).
 2. Abra o `.dmg` e arraste o **OptPaste** para **Aplicativos**.
 3. Abra o app e, na primeira vez, siga os passos abaixo.
 

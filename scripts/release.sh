@@ -16,7 +16,7 @@ pre=${version#$core}; pre=${pre#-}
 repo=${0:A:h:h}
 site=${SITE_DIR:-$repo/../optpaste-site}
 project=$repo/OptPaste.xcodeproj/project.pbxproj
-dmg_url=https://optpaste.pages.dev/downloads/OptPaste.dmg
+dmg_url=https://optpaste.acervoapps.com.br/downloads/OptPaste.dmg
 cd "$repo"
 
 [[ -z $(git status --porcelain --untracked-files=no) ]] || { echo "app repo has uncommitted changes" >&2; exit 1; }
