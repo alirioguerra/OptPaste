@@ -82,6 +82,8 @@ enum Paster {
         if modifiers.contains(.maskAlternate) { flags.insert(CGEventFlags(rawValue: 0x20)) }
         down.flags = flags
         up.flags = flags
+        // A hotkey matching this key would swallow it, so release them while the event goes out.
+        HotKeyManager.suspendAll(for: 0.15)
         // Posted at session level, where synthetic events are expected.
         down.post(tap: .cgSessionEventTap)
         up.post(tap: .cgSessionEventTap)

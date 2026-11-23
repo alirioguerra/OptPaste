@@ -11,6 +11,12 @@ final class HotKeyManager {
 
     private let id: UInt32
     private var hotKeyRef: EventHotKeyRef?
+    /// Shortcut to restore after a suspension; nil once the owner registers or releases it again.
+    private var suspendedShortcut: Shortcut?
+    private var shortcut: Shortcut?
+
+    /// Bumped on every suspension so only the latest one restores the hotkeys.
+    private static var suspensionGeneration = 0
 
     private static var instances: [UInt32: HotKeyManager] = [:]
     private static var handlerRef: EventHandlerRef?
@@ -26,6 +32,7 @@ final class HotKeyManager {
     @discardableResult
     func register(_ shortcut: Shortcut) -> Bool {
         unregister()
+        self.shortcut = shortcut
         Self.installHandlerIfNeeded()
         let hotKeyID = EventHotKeyID(signature: OSType(0x4F50_5354), id: id) // "OPST"
         let status = RegisterEventHotKey(
@@ -36,10 +43,37 @@ final class HotKeyManager {
     }
 
     func unregister() {
+        suspendedShortcut = nil
+        shortcut = nil
+        release()
+    }
+
+    private func release() {
         if let hotKeyRef {
             UnregisterEventHotKey(hotKeyRef)
         }
         hotKeyRef = nil
+    }
+
+    /// Releases every registered hotkey for `duration` and then registers them again.
+    ///
+    /// Carbon hotkeys also catch synthetic events, so a key we post that matches one (e.g. ⌘V when
+    /// the history shortcut is ⌘V) would trigger it instead of reaching the frontmost app.
+    static func suspendAll(for duration: TimeInterval) {
+        for instance in instances.values where instance.hotKeyRef != nil {
+            instance.suspendedShortcut = instance.shortcut
+            instance.release()
+        }
+        suspensionGeneration += 1
+        let generation = suspensionGeneration
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            guard generation == suspensionGeneration else { return }
+            for instance in instances.values {
+                guard let shortcut = instance.suspendedShortcut else { continue }
+                instance.suspendedShortcut = nil
+                instance.register(shortcut)
+            }
+        }
     }
 
     private static func installHandlerIfNeeded() {
